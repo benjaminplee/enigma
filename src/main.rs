@@ -1,7 +1,7 @@
 use enigma::*;
 
 fn main() {
-    let M3_ROTORS = [
+    let rotors = [
         Rotor::new("I", "EKMFLGDQVZNTOWYHXUSPAIBRCJ", 'A'),
         Rotor::new("II", "AJDKSIRUXBLHWTMCQGZNPYFVOE", 'A'),
         Rotor::new("III", "BDFHJLCPRTXVZNYEIWGAKMUSQO", 'A'),
@@ -9,5 +9,5 @@ fn main() {
         Rotor::new("V", "VZBRGITYUPSDNHLXAWMJQOFECK", 'A'),
     ];
 
-    println!("Output: {:?}", M3_ROTORS[0]);
+    println!("Output: {:#?}", rotors[0]);
 }
