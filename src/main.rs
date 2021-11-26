@@ -2,12 +2,19 @@ use enigma::*;
 
 fn main() {
     let rotors = [
-        Rotor::new("I", "EKMFLGDQVZNTOWYHXUSPAIBRCJ", 'A'),
-        Rotor::new("II", "AJDKSIRUXBLHWTMCQGZNPYFVOE", 'A'),
-        Rotor::new("III", "BDFHJLCPRTXVZNYEIWGAKMUSQO", 'A'),
-        Rotor::new("IV", "ESOVPZJAYQUIRHXLNFTGKDCMWB", 'A'),
+        Rotor::new("I", "EKMFLGDQVZNTOWYHXUSPAIBRCJ", 'R'),
+        Rotor::new("II", "AJDKSIRUXBLHWTMCQGZNPYFVOE", 'F'),
+        Rotor::new("III", "BDFHJLCPRTXVZNYEIWGAKMUSQO", 'W'),
+        Rotor::new("IV", "ESOVPZJAYQUIRHXLNFTGKDCMWB", 'K'),
         Rotor::new("V", "VZBRGITYUPSDNHLXAWMJQOFECK", 'A'),
     ];
 
-    println!("Output: {:#?}", rotors[0]);
+    let reflectors = [
+        Reflector::new("A", "EJMZALYXVBWFCRQUONTSPIKHGD"),
+        Reflector::new("B", "YRUHQSLDPXNGOKMIEBFZCWVJAT"),
+        Reflector::new("C", "FVPJIAOYEDRZXWGCTKUQSBNMHL"),
+    ];
+
+    println!("Rotors: {:#?}", rotors);
+    println!("Reflectors: {:#?}", reflectors);
 }

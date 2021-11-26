@@ -26,6 +26,21 @@ fn wire(c: char) -> u8 {
 }
 
 #[derive(Debug)]
+pub struct Reflector {
+    name: String,
+    wiring: [u8; 26],
+}
+
+impl Reflector {
+    pub fn new(name: &str, encoding: &str) -> Reflector {
+        Reflector {
+            name: String::from(name),
+            wiring: gen_wiring(encoding),
+        }
+    }
+}
+
+#[derive(Debug)]
 pub struct State {
     rotors: [Rotor; 3],
     setting: [u8; 3],
