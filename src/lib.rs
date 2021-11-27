@@ -1,8 +1,8 @@
 #[derive(Debug)]
 pub struct Rotor {
     name: String,
-    wiring: [u8; 26],
-    turnover_post: u8,
+    wiring: [usize; 26],
+    turnover_post: usize,
 }
 
 impl Rotor {
@@ -15,8 +15,8 @@ impl Rotor {
     }
 }
 
-fn gen_wiring(encoding: &str) -> [u8; 26] {
-    let mut wiring: [u8; 26] = [0; 26];
+fn gen_wiring(encoding: &str) -> [usize; 26] {
+    let mut wiring: [usize; 26] = [0; 26];
     let bytes = encoding.as_bytes();
 
     for i in 0..26 {
@@ -26,14 +26,14 @@ fn gen_wiring(encoding: &str) -> [u8; 26] {
     return wiring;
 }
 
-fn wire(c: char) -> u8 {
-    return (c as u8) - b'A';
+fn wire(c: char) -> usize {
+    return ((c as u8) - b'A') as usize;
 }
 
 #[derive(Debug)]
 pub struct Reflector {
     name: String,
-    wiring: [u8; 26],
+    wiring: [usize; 26],
 }
 
 impl Reflector {
@@ -48,9 +48,9 @@ impl Reflector {
 #[derive(Debug)]
 pub struct State {
     rotors: [Rotor; 3],
-    setting: [u8; 3],
-    offsets: [u8; 3],
-    plug_board: [u8; 26],
+    setting: [usize; 3],
+    offsets: [usize; 3],
+    plug_board: [usize; 26],
     reflector: Reflector,
 }
 
@@ -63,10 +63,11 @@ impl State {
         plugs: [(char, char); 10],
         reflector: Reflector,
     ) -> State {
+        let initial_settings = [wire(initial[0]), wire(initial[1]), wire(initial[2])];
         State {
             rotors: [r1, r2, r3],
-            setting: [wire(initial[0]), wire(initial[1]), wire(initial[2])],
-            offsets: [0, 0, 0],
+            setting: initial_settings,
+            offsets: [wire(initial[0]), wire(initial[1]), wire(initial[2])],
             plug_board: gen_board(plugs),
             reflector,
         }
@@ -75,10 +76,21 @@ impl State {
     fn increment(&self) {}
 }
 
-fn gen_board(plugs: [(char, char); 10]) -> [u8; 26] {
-    [
-        1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1,
-    ]
+fn gen_board(plugs: [(char, char); 10]) -> [usize; 26] {
+    let mut board = [
+        0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 181, 19, 20, 21, 22, 23, 24,
+        25,
+    ];
+
+    for (p1, p2) in plugs {
+        let w1 = wire(p1);
+        let w2 = wire(p2);
+
+        board[w1] = w2;
+        board[w2] = w1;
+    }
+
+    return board;
 }
 
 pub fn machine(mut state: State, text: String) -> String {
