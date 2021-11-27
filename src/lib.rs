@@ -46,23 +46,36 @@ impl Reflector {
 }
 
 #[derive(Debug)]
-pub struct State {
-    rotors: [Rotor; 3],
+pub struct State<'a> {
+    rotors: [&'a Rotor; 3],
     setting: [usize; 3],
     offsets: [usize; 3],
     plug_board: [usize; 26],
-    reflector: Reflector,
+    reflector: &'a Reflector,
 }
 
-impl State {
+pub const NO_PLUGS: [(char, char); 10] = [
+    ('A', 'A'),
+    ('A', 'A'),
+    ('A', 'A'),
+    ('A', 'A'),
+    ('A', 'A'),
+    ('A', 'A'),
+    ('A', 'A'),
+    ('A', 'A'),
+    ('A', 'A'),
+    ('A', 'A'),
+];
+
+impl<'a> State<'a> {
     pub fn new(
-        r1: Rotor,
-        r2: Rotor,
-        r3: Rotor,
+        r1: &'a Rotor,
+        r2: &'a Rotor,
+        r3: &'a Rotor,
         initial: [char; 3],
         plugs: [(char, char); 10],
-        reflector: Reflector,
-    ) -> State {
+        reflector: &'a Reflector,
+    ) -> State<'a> {
         let initial_settings = [wire(initial[0]), wire(initial[1]), wire(initial[2])];
         State {
             rotors: [r1, r2, r3],
