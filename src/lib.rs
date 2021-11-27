@@ -16,13 +16,18 @@ impl Rotor {
 }
 
 fn gen_wiring(encoding: &str) -> [u8; 26] {
-    [
-        1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1,
-    ]
+    let mut wiring: [u8; 26] = [0; 26];
+    let bytes = encoding.as_bytes();
+
+    for i in 0..26 {
+        wiring[i] = wire(bytes[i] as char)
+    }
+
+    return wiring;
 }
 
 fn wire(c: char) -> u8 {
-    1
+    return (c as u8) - b'A';
 }
 
 #[derive(Debug)]
@@ -46,6 +51,7 @@ pub struct State {
     setting: [u8; 3],
     offsets: [u8; 3],
     plug_board: [u8; 26],
+    reflector: Reflector,
 }
 
 impl State {
@@ -55,12 +61,14 @@ impl State {
         r3: Rotor,
         initial: [char; 3],
         plugs: [(char, char); 10],
+        reflector: Reflector,
     ) -> State {
         State {
             rotors: [r1, r2, r3],
             setting: [wire(initial[0]), wire(initial[1]), wire(initial[2])],
             offsets: [0, 0, 0],
             plug_board: gen_board(plugs),
+            reflector,
         }
     }
 
