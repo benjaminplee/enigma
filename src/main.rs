@@ -29,7 +29,7 @@ fn main() {
 
     let text = String::from("HELLO WORLD!");
 
-    println!("Starting State: {:#?}", machine);
+    // println!("Starting State: {:#?}", machine);
 
     println!("Encoded: {} -> {}", text, machine.encode(&text));
 }

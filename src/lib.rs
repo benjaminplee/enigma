@@ -87,6 +87,15 @@ impl<'a> State<'a> {
     }
 
     fn increment(&mut self) {
+        if self.offsets[1] == self.rotors[1].turnover_post {
+            self.offsets[1] = self.offsets[1] + 1;
+            self.offsets[0] = self.offsets[0] + 1;
+        }
+
+        if self.offsets[2] == self.rotors[2].turnover_post {
+            self.offsets[1] = self.offsets[1] + 1;
+        }
+
         self.offsets[2] = self.offsets[2] + 1;
     }
 
@@ -118,25 +127,25 @@ impl<'a> State<'a> {
             input = plug_board[input];
 
             // (3) First Rotor
-            input = right[input];
+            input = right[(input + self.offsets[2]) % 26];
 
             // (4) Second Rotor
-            input = center[input];
+            input = center[(input + self.offsets[1]) % 26];
 
             // (5) Third Rotor
-            input = left[input];
+            input = left[(input + self.offsets[0]) % 26];
 
             // (6) Reflector
             input = reflector[input];
 
             // (7) Third Rotor Inverse
-            input = left[input];
+            input = left[(input + self.offsets[0]) % 26];
 
             // (8) Second Rotor Inverse
-            input = center[input];
+            input = center[(input + self.offsets[1]) % 26];
 
             // (9) First Rotor Inverse
-            input = right[input];
+            input = right[(input + self.offsets[2]) % 26];
 
             // (10) Plug Board
             input = plug_board[input];
