@@ -18,7 +18,7 @@ fn main() {
     // println!("Rotors: {:#?}", rotors);
     // println!("Reflectors: {:#?}", reflectors);
 
-    let machine = enigma::State::new(
+    let mut machine = enigma::State::new(
         &rotors[0],
         &rotors[1],
         &rotors[2],
@@ -27,5 +27,9 @@ fn main() {
         &reflectors[0],
     );
 
-    println!("Starting State: {:#?}", machine)
+    let text = String::from("HELLO WORLD!");
+
+    println!("Starting State: {:#?}", machine);
+
+    println!("Encoded: {} -> {}", text, machine.encode(&text));
 }

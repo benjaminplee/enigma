@@ -86,7 +86,54 @@ impl<'a> State<'a> {
         }
     }
 
-    fn increment(&self) {}
+    fn increment(&mut self) {
+        self.offsets[2] = self.offsets[2] + 1;
+    }
+
+    pub fn encrypt(_input: char) -> char {
+        return 'A';
+    }
+
+    pub fn encode(&'a mut self, text: &String) -> String {
+        let mut output = String::new();
+        let right = self.rotors[2];
+
+        for c in text
+            .chars()
+            .filter(|c| c.is_ascii() && c.is_alphabetic())
+            .map(|c| c.to_ascii_uppercase())
+        {
+            // Input
+            let mut input = ((c as u8) - b'A') as usize;
+
+            // (1) Shift Rotors
+            self.increment();
+
+            // (2) Plug Board
+
+            // (3) First Rotor
+            input = right.wiring[input];
+
+            // (4) Second Rotor
+
+            // (5) Third Rotor
+
+            // (6) Reflector
+
+            // (7) Third Rotor Inverse
+
+            // (8) Second Rotor Inverse
+
+            // (9) First Rotor Inverse
+
+            // (10) Plug Board
+
+            // Output
+            output.push((input as u8 + b'A') as char);
+        }
+
+        output
+    }
 }
 
 fn gen_board(plugs: [(char, char); 10]) -> [usize; 26] {
@@ -104,42 +151,4 @@ fn gen_board(plugs: [(char, char); 10]) -> [usize; 26] {
     }
 
     return board;
-}
-
-pub fn machine(mut state: State, text: String) -> String {
-    let mut output = String::new();
-
-    for c in text
-        .chars()
-        .filter(|c| c.is_ascii() && c.is_alphabetic())
-        .map(|c| c.to_ascii_uppercase())
-    {
-        // Input
-        let input = (c as u8) - b'A';
-
-        // (1) Shift Rotors
-
-        // (2) Plug Board
-
-        // (3) First Rotor
-
-        // (4) Second Rotor
-
-        // (5) Third Rotor
-
-        // (6) Reflector
-
-        // (7) Third Rotor Inverse
-
-        // (8) Second Rotor Inverse
-
-        // (9) First Rotor Inverse
-
-        // (10) Plug Board
-
-        // Output
-        output.push((input + b'A') as char);
-    }
-
-    output
 }
