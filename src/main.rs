@@ -1,6 +1,11 @@
 // use enigma::*;
+extern crate pretty_env_logger;
+#[macro_use]
+extern crate log;
 
 fn main() {
+    pretty_env_logger::init();
+
     let rotors = [
         enigma::Rotor::new("I", "EKMFLGDQVZNTOWYHXUSPAIBRCJ", 'R'),
         enigma::Rotor::new("II", "AJDKSIRUXBLHWTMCQGZNPYFVOE", 'F'),
@@ -27,9 +32,15 @@ fn main() {
         &reflectors[0],
     );
 
-    let text = String::from("HELLO WORLD!");
+    let text = String::from("AAAA");
 
+    debug!("foo!");
+    trace!("dog cat fish");
     // println!("Starting State: {:#?}", machine);
 
-    println!("Encoded: {} -> {}", text, machine.encode(&text));
+    let output = machine.encode(&text);
+
+    info!("Encoded: {} -> {}", text, output);
+
+    println!("{}", output);
 }
