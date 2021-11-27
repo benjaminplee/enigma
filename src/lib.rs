@@ -1,3 +1,6 @@
+#[macro_use]
+extern crate log;
+
 #[derive(Debug)]
 pub struct Rotor {
     name: String,
@@ -112,46 +115,66 @@ impl<'a> State<'a> {
         let plug_board = self.plug_board;
         let reflector = self.reflector.wiring;
 
+        info!("Starting encoding of: {}", text);
+        info!("R-Rotor: {:#?}", right);
+
         for c in text
             .chars()
             .filter(|c| c.is_ascii() && c.is_alphabetic())
             .map(|c| c.to_ascii_uppercase())
         {
+            let mut shift = 0;
+
             // Input
-            let mut input = ((c as u8) - b'A') as usize;
+            let input1 = ((c as u8) - b'A') as usize;
+            debug!("Input = {}({})", input1, c);
 
             // (1) Shift Rotors
             self.increment();
 
             // (2) Plug Board
-            input = plug_board[input];
+            let input2 = plug_board[input1];
+            debug!("Plug = {} -> {}", input1, input2);
 
             // (3) First Rotor
-            input = right[(input + self.offsets[2]) % 26];
+            shift = (input2 + self.offsets[2]) % 26;
+            let input3 = right[shift];
+            debug!("R-Rotor = {} -> {} -> {}", input2, shift, input3);
 
             // (4) Second Rotor
-            input = center[(input + self.offsets[1]) % 26];
+            let input4 = center[(input3 + self.offsets[1]) % 26];
+            debug!("C-Rotor = {} -> {}", input3, input4);
 
             // (5) Third Rotor
-            input = left[(input + self.offsets[0]) % 26];
+            let input5 = left[(input4 + self.offsets[0]) % 26];
+            debug!("L-Rotor = {} -> {}", input4, input5);
 
             // (6) Reflector
-            input = reflector[input];
+            let input6 = reflector[input5];
+            debug!("Reflector = {} -> {}", input5, input6);
 
             // (7) Third Rotor Inverse
-            input = left[(input + self.offsets[0]) % 26];
+            let input7 = left[(input6 + self.offsets[0]) % 26];
+            debug!("L-Rotor = {} -> {}", input6, input7);
 
             // (8) Second Rotor Inverse
-            input = center[(input + self.offsets[1]) % 26];
+            let input8 = center[(input7 + self.offsets[1]) % 26];
+            debug!("C-Rotor = {} -> {}", input7, input8);
 
             // (9) First Rotor Inverse
-            input = right[(input + self.offsets[2]) % 26];
+            let input9 = right[(input8 + self.offsets[2]) % 26];
+            debug!("R-Rotor = {} -> {}", input8, input9);
 
             // (10) Plug Board
-            input = plug_board[input];
+            let input10 = plug_board[input9];
+            debug!("Plug = {} -> {}", input9, input10);
 
             // Output
-            output.push((input as u8 + b'A') as char);
+            let cout = (input10 as u8 + b'A') as char;
+            debug!("Output = {}({})", input10, cout);
+            output.push(cout);
+
+            info!("ENCRYPTED {} -> {}", c, cout);
         }
 
         return output;
