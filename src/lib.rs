@@ -96,7 +96,12 @@ impl<'a> State<'a> {
 
     pub fn encode(&'a mut self, text: &String) -> String {
         let mut output = String::new();
-        let right = self.rotors[2];
+
+        let left = self.rotors[0].wiring;
+        let center = self.rotors[1].wiring;
+        let right = self.rotors[2].wiring;
+        let plug_board = self.plug_board;
+        let reflector = self.reflector.wiring;
 
         for c in text
             .chars()
@@ -110,29 +115,37 @@ impl<'a> State<'a> {
             self.increment();
 
             // (2) Plug Board
+            input = plug_board[input];
 
             // (3) First Rotor
-            input = right.wiring[input];
+            input = right[input];
 
             // (4) Second Rotor
+            input = center[input];
 
             // (5) Third Rotor
+            input = left[input];
 
             // (6) Reflector
+            input = reflector[input];
 
             // (7) Third Rotor Inverse
+            input = left[input];
 
             // (8) Second Rotor Inverse
+            input = center[input];
 
             // (9) First Rotor Inverse
+            input = right[input];
 
             // (10) Plug Board
+            input = plug_board[input];
 
             // Output
             output.push((input as u8 + b'A') as char);
         }
 
-        output
+        return output;
     }
 }
 
