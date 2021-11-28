@@ -124,63 +124,67 @@ impl<'a> State<'a> {
 
         for c in text
             .chars()
-            .filter(|c| c.is_ascii() && c.is_alphabetic())
             .map(|c| c.to_ascii_uppercase())
         {
-            // Input
-            let input1 = ((c as u8) - b'A') as usize;
+            if c.is_ascii() && c.is_alphabetic() {
+                // Input
+                let input1 = ((c as u8) - b'A') as usize;
 
-            // (1) Shift Rotors
-            self.increment();
-            let left_offset = self.offsets[0];
-            let center_offset = self.offsets[1];
-            let right_offset = self.offsets[2];
+                // (1) Shift Rotors
+                self.increment();
+                let left_offset = self.offsets[0];
+                let center_offset = self.offsets[1];
+                let right_offset = self.offsets[2];
 
-            // (2) Plug Board
-            let input2 = plug_board[input1];
-            trace!("Plug = {} -> {}", input1, input2);
+                // (2) Plug Board
+                let input2 = plug_board[input1];
+                trace!("Plug = {} -> {}", input1, input2);
 
-            // (3) First Rotor
-            let input3 = right.push(input2, right_offset);
+                // (3) First Rotor
+                let input3 = right.push(input2, right_offset);
 
-            // (4) Second Rotor
-            let input4 = center.push(input3, center_offset);
+                // (4) Second Rotor
+                let input4 = center.push(input3, center_offset);
 
-            // (5) Third Rotor
-            let input5 = left.push(input4, left_offset);
+                // (5) Third Rotor
+                let input5 = left.push(input4, left_offset);
 
-            // (6) Reflector
-            let input6 = reflector[input5];
-            trace!("Reflector = {} -> {}", input5, input6);
+                // (6) Reflector
+                let input6 = reflector[input5];
+                trace!("Reflector = {} -> {}", input5, input6);
 
-            // (7) Third Rotor Inverse
-            let input7 = left.pull(input6, left_offset);
+                // (7) Third Rotor Inverse
+                let input7 = left.pull(input6, left_offset);
 
-            // (8) Second Rotor Inverse
-            let input8 = center.pull(input7, center_offset);
+                // (8) Second Rotor Inverse
+                let input8 = center.pull(input7, center_offset);
 
-            // (9) First Rotor Inverse
-            let input9 = right.pull(input8, right_offset);
+                // (9) First Rotor Inverse
+                let input9 = right.pull(input8, right_offset);
 
-            // (10) Plug Board
-            let input10 = plug_board[input9];
-            trace!("Plug = {} -> {}", input9, input10);
+                // (10) Plug Board
+                let input10 = plug_board[input9];
+                trace!("Plug = {} -> {}", input9, input10);
 
-            // Output
-            let cout = unwire(input10);
-            output.push(cout);
+                // Output
+                let cout = unwire(input10);
+                output.push(cout);
 
-            debug!(
-                "ENCRYPTED {} -> {} :: {} {} {} :: {} {} {}",
-                c,
-                cout,
-                unwire(left_offset % MAX_WIRES),
-                unwire(center_offset % MAX_WIRES),
-                unwire(right_offset % MAX_WIRES),
-                left_offset,
-                center_offset,
-                right_offset
-            );
+                debug!(
+                    "ENCRYPTED {} -> {} :: {} {} {} :: {} {} {}",
+                    c,
+                    cout,
+                    unwire(left_offset % MAX_WIRES),
+                    unwire(center_offset % MAX_WIRES),
+                    unwire(right_offset % MAX_WIRES),
+                    left_offset,
+                    center_offset,
+                    right_offset
+                );
+            } else {
+                output.push(c);
+                debug!("IGNORED {}", c);
+            }
         }
 
         return output;
