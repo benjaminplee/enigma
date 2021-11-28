@@ -3,6 +3,8 @@ extern crate pretty_env_logger;
 #[macro_use]
 extern crate log;
 
+use std::fs;
+
 fn main() {
     pretty_env_logger::init();
 
@@ -32,7 +34,10 @@ fn main() {
         &reflectors[0],
     );
 
-    let text = String::from("HELLO WORLD! THE QUICK BROWN FOX JUMPED OVER THE LAZY DOG.");
+    // let text = String::from("HELLO WORLD! THE QUICK BROWN FOX JUMPED OVER THE LAZY DOG.");
+
+    let text =
+        fs::read_to_string("input.txt").expect("Something went wrong reading the input file");
 
     debug!("Starting State: {:?}", machine);
 
