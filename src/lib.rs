@@ -52,7 +52,9 @@ impl Reflector {
 
 #[derive(Debug)]
 pub struct State<'a> {
-    rotors: [&'a Rotor; 3],
+    left_rotor: &'a Rotor,
+    center_rotor: &'a Rotor,
+    right_rotor: &'a Rotor,
     setting: [usize; 3],
     offsets: [usize; 3],
     plug_board: [usize; MAX_WIRES],
@@ -61,16 +63,18 @@ pub struct State<'a> {
 
 impl<'a> State<'a> {
     pub fn new(
-        r1: &'a Rotor,
-        r2: &'a Rotor,
-        r3: &'a Rotor,
+        left_rotor: &'a Rotor,
+        center_rotor: &'a Rotor,
+        right_rotor: &'a Rotor,
         initial: [char; 3],
         plugs: [(char, char); 10],
         reflector: &'a Reflector,
     ) -> State<'a> {
         let initial_settings = [wire(initial[0]), wire(initial[1]), wire(initial[2])];
         State {
-            rotors: [r1, r2, r3],
+            left_rotor,
+            center_rotor,
+            right_rotor,
             setting: initial_settings,
             offsets: [wire(initial[0]), wire(initial[1]), wire(initial[2])],
             plug_board: gen_board(plugs),
@@ -79,12 +83,12 @@ impl<'a> State<'a> {
     }
 
     fn increment(&mut self) {
-        if self.offsets[1] == self.rotors[1].turnover_post {
+        if self.offsets[1] == self.right_rotor.turnover_post {
             self.offsets[1] = (self.offsets[1] + 1) % MAX_WIRES;
             self.offsets[0] = (self.offsets[0] + 1) % MAX_WIRES;
         }
 
-        if self.offsets[2] == self.rotors[2].turnover_post {
+        if self.offsets[2] == self.center_rotor.turnover_post {
             self.offsets[1] = (self.offsets[1] + 1) % MAX_WIRES;
         }
 
@@ -98,9 +102,9 @@ impl<'a> State<'a> {
     pub fn encode(&'a mut self, text: &String) -> String {
         let mut output = String::new();
 
-        let left = self.rotors[0];
-        let center = self.rotors[1];
-        let right = self.rotors[2];
+        let left = self.left_rotor;
+        let center = self.center_rotor;
+        let right = self.right_rotor;
         let plug_board = self.plug_board;
         let reflector = self.reflector.wiring;
 
