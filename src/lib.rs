@@ -33,6 +33,10 @@ fn wire(c: char) -> usize {
     return ((c as u8) - b'A') as usize;
 }
 
+fn unwire(i: usize) -> char {
+    return (i as u8 + b'A') as char;
+}
+
 #[derive(Debug)]
 pub struct Reflector {
     name: String,
@@ -115,66 +119,79 @@ impl<'a> State<'a> {
         let plug_board = self.plug_board;
         let reflector = self.reflector.wiring;
 
-        info!("Starting encoding of: {}", text);
-        info!("R-Rotor: {:#?}", right);
-
         for c in text
             .chars()
             .filter(|c| c.is_ascii() && c.is_alphabetic())
             .map(|c| c.to_ascii_uppercase())
         {
-            let mut shift = 0;
+            let mut shift: usize;
 
             // Input
             let input1 = ((c as u8) - b'A') as usize;
-            debug!("Input = {}({})", input1, c);
 
             // (1) Shift Rotors
             self.increment();
+            let left_offset = self.offsets[0];
+            let center_offset = self.offsets[1];
+            let right_offset = self.offsets[2];
 
             // (2) Plug Board
             let input2 = plug_board[input1];
-            debug!("Plug = {} -> {}", input1, input2);
+            trace!("Plug = {} -> {}", input1, input2);
 
             // (3) First Rotor
-            shift = (input2 + self.offsets[2]) % 26;
+            shift = (input2 + right_offset) % 26;
             let input3 = right[shift];
-            debug!("R-Rotor = {} -> {} -> {}", input2, shift, input3);
+            trace!("R-Rotor = {} -> {} -> {}", input2, shift, input3);
 
             // (4) Second Rotor
-            let input4 = center[(input3 + self.offsets[1]) % 26];
-            debug!("C-Rotor = {} -> {}", input3, input4);
+            shift = (input3 + center_offset) % 26;
+            let input4 = center[shift];
+            trace!("C-Rotor = {} -> {} -> {}", input3, shift, input4);
 
             // (5) Third Rotor
-            let input5 = left[(input4 + self.offsets[0]) % 26];
-            debug!("L-Rotor = {} -> {}", input4, input5);
+            shift = (input4 + left_offset) % 26;
+            let input5 = left[shift];
+            trace!("L-Rotor = {} -> {} -> {}", input4, shift, input5);
 
             // (6) Reflector
             let input6 = reflector[input5];
-            debug!("Reflector = {} -> {}", input5, input6);
+            trace!("Reflector = {} -> {}", input5, input6);
 
             // (7) Third Rotor Inverse
-            let input7 = left[(input6 + self.offsets[0]) % 26];
-            debug!("L-Rotor = {} -> {}", input6, input7);
+            shift = (input6 + left_offset) % 26;
+            let input7 = left[shift];
+            trace!("L-Rotor = {} -> {} -> {}", input6, shift, input7);
 
             // (8) Second Rotor Inverse
-            let input8 = center[(input7 + self.offsets[1]) % 26];
-            debug!("C-Rotor = {} -> {}", input7, input8);
+            shift = (input7 + center_offset) % 26;
+            let input8 = center[shift];
+            trace!("C-Rotor = {} -> {} -> {}", input7, shift, input8);
 
             // (9) First Rotor Inverse
-            let input9 = right[(input8 + self.offsets[2]) % 26];
-            debug!("R-Rotor = {} -> {}", input8, input9);
+            shift = (input8 + right_offset) % 26;
+            let input9 = right[shift];
+            trace!("R-Rotor = {} -> {} -> {}", input8, shift, input9);
 
             // (10) Plug Board
             let input10 = plug_board[input9];
-            debug!("Plug = {} -> {}", input9, input10);
+            trace!("Plug = {} -> {}", input9, input10);
 
             // Output
-            let cout = (input10 as u8 + b'A') as char;
-            debug!("Output = {}({})", input10, cout);
+            let cout = unwire(input10);
             output.push(cout);
 
-            info!("ENCRYPTED {} -> {}", c, cout);
+            debug!(
+                "ENCRYPTED {} -> {} :: {} {} {} :: {} {} {}",
+                c,
+                cout,
+                unwire(left_offset % 26),
+                unwire(center_offset % 26),
+                unwire(right_offset % 26),
+                left_offset,
+                center_offset,
+                right_offset
+            );
         }
 
         return output;
@@ -183,7 +200,7 @@ impl<'a> State<'a> {
 
 fn gen_board(plugs: [(char, char); 10]) -> [usize; 26] {
     let mut board = [
-        0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 181, 19, 20, 21, 22, 23, 24,
+        0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23, 24,
         25,
     ];
 

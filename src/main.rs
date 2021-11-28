@@ -32,9 +32,9 @@ fn main() {
         &reflectors[0],
     );
 
-    let text = String::from("HELLO WORLD!");
+    let text = String::from("HELLO WORLD! THE QUICK BROWN FOX JUMPED OVER THE LAZY DOG.");
 
-    trace!("Starting State: {:#?}", machine);
+    debug!("Starting State: {:?}", machine);
 
     let output = machine.encode(&text);
 
