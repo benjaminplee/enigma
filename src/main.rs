@@ -48,8 +48,7 @@ fn main() {
 
     // let text = String::from("HELLO WORLD! THE QUICK BROWN FOX JUMPED OVER THE LAZY DOG.");
 
-    let text =
-        fs::read_to_string(input_file).expect("Something went wrong reading the input file");
+    let text = fs::read_to_string(input_file).expect("Something went wrong reading the input file");
 
     debug!("Starting State: {:?}", machine);
 
