@@ -1,6 +1,8 @@
 #[macro_use]
 extern crate log;
 
+const MAX_WIRES: usize = 26;
+
 #[derive(Debug)]
 pub struct Rotor {
     name: String,
@@ -95,15 +97,15 @@ impl<'a> State<'a> {
 
     fn increment(&mut self) {
         if self.offsets[1] == self.rotors[1].turnover_post {
-            self.offsets[1] = self.offsets[1] + 1;
-            self.offsets[0] = self.offsets[0] + 1;
+            self.offsets[1] = (self.offsets[1] + 1) % MAX_WIRES;
+            self.offsets[0] = (self.offsets[0] + 1) % MAX_WIRES;
         }
 
         if self.offsets[2] == self.rotors[2].turnover_post {
-            self.offsets[1] = self.offsets[1] + 1;
+            self.offsets[1] = (self.offsets[1] + 1) % MAX_WIRES;
         }
 
-        self.offsets[2] = self.offsets[2] + 1;
+        self.offsets[2] = (self.offsets[2] + 1) % MAX_WIRES;
     }
 
     pub fn encrypt(_input: char) -> char {
@@ -140,17 +142,17 @@ impl<'a> State<'a> {
             trace!("Plug = {} -> {}", input1, input2);
 
             // (3) First Rotor
-            shift = (input2 + right_offset) % 26;
+            shift = (input2 + right_offset) % MAX_WIRES;
             let input3 = right[shift];
             trace!("R-Rotor = {} -> {} -> {}", input2, shift, input3);
 
             // (4) Second Rotor
-            shift = (input3 + center_offset) % 26;
+            shift = (input3 + center_offset) % MAX_WIRES;
             let input4 = center[shift];
             trace!("C-Rotor = {} -> {} -> {}", input3, shift, input4);
 
             // (5) Third Rotor
-            shift = (input4 + left_offset) % 26;
+            shift = (input4 + left_offset) % MAX_WIRES;
             let input5 = left[shift];
             trace!("L-Rotor = {} -> {} -> {}", input4, shift, input5);
 
@@ -159,17 +161,17 @@ impl<'a> State<'a> {
             trace!("Reflector = {} -> {}", input5, input6);
 
             // (7) Third Rotor Inverse
-            shift = (input6 + left_offset) % 26;
+            shift = (input6 + left_offset) % MAX_WIRES;
             let input7 = left[shift];
             trace!("L-Rotor = {} -> {} -> {}", input6, shift, input7);
 
             // (8) Second Rotor Inverse
-            shift = (input7 + center_offset) % 26;
+            shift = (input7 + center_offset) % MAX_WIRES;
             let input8 = center[shift];
             trace!("C-Rotor = {} -> {} -> {}", input7, shift, input8);
 
             // (9) First Rotor Inverse
-            shift = (input8 + right_offset) % 26;
+            shift = (input8 + right_offset) % MAX_WIRES;
             let input9 = right[shift];
             trace!("R-Rotor = {} -> {} -> {}", input8, shift, input9);
 
