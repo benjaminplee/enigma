@@ -122,10 +122,7 @@ impl<'a> State<'a> {
         let plug_board = self.plug_board;
         let reflector = self.reflector.wiring;
 
-        for c in text
-            .chars()
-            .map(|c| c.to_ascii_uppercase())
-        {
+        for c in text.chars().map(|c| c.to_ascii_uppercase()) {
             if c.is_ascii() && c.is_alphabetic() {
                 // Input
                 let input1 = ((c as u8) - b'A') as usize;
@@ -183,7 +180,14 @@ impl<'a> State<'a> {
                 );
             } else {
                 output.push(c);
-                debug!("IGNORED {}", c);
+                debug!(
+                    "IGNORED [{}]",
+                    if c.is_control() {
+                        String::from("CONTROL")
+                    } else {
+                        c.to_string()
+                    }
+                );
             }
         }
 
