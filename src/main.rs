@@ -1,4 +1,3 @@
-// use enigma::*;
 extern crate pretty_env_logger;
 
 #[macro_use]
@@ -34,9 +33,6 @@ fn main() {
         enigma::Reflector::new("C", "FVPJIAOYEDRZXWGCTKUQSBNMHL"),
     ];
 
-    // println!("Rotors: {:#?}", rotors);
-    // println!("Reflectors: {:#?}", reflectors);
-
     let mut machine = enigma::State::new(
         &rotors[0],
         &rotors[1],
@@ -45,8 +41,6 @@ fn main() {
         enigma::NO_PLUGS,
         &reflectors[0],
     );
-
-    // let text = String::from("HELLO WORLD! THE QUICK BROWN FOX JUMPED OVER THE LAZY DOG.");
 
     let text = fs::read_to_string(input_file).expect("Something went wrong reading the input file");
 
