@@ -16,7 +16,7 @@ fn main() {
 
     let input_file = matches.value_of("INPUT").unwrap();
 
-    println!("Using input file: {}", input_file);
+    info!("Using input file: {}", input_file);
 
     pretty_env_logger::init();
 

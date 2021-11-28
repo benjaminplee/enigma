@@ -7,14 +7,17 @@ const MAX_WIRES: usize = 26;
 pub struct Rotor {
     name: String,
     wiring: [usize; 26],
+    inv_wiring: [usize; 26],
     turnover_post: usize,
 }
 
 impl Rotor {
     pub fn new(name: &str, encoding: &str, turnover_pos: char) -> Rotor {
+        let wiring = gen_wiring(encoding);
         Rotor {
             name: String::from(name),
-            wiring: gen_wiring(encoding),
+            wiring,
+            inv_wiring: inv(wiring),
             turnover_post: wire(turnover_pos),
         }
     }
@@ -29,6 +32,16 @@ fn gen_wiring(encoding: &str) -> [usize; 26] {
     }
 
     return wiring;
+}
+
+fn inv(wiring: [usize; 26]) -> [usize; 26] {
+    let mut iwiring: [usize; 26] = [9; 26];
+
+    for i in 0..26 {
+        iwiring[wiring[i]] = i;
+    }
+
+    return iwiring;
 }
 
 fn wire(c: char) -> usize {
@@ -115,9 +128,9 @@ impl<'a> State<'a> {
     pub fn encode(&'a mut self, text: &String) -> String {
         let mut output = String::new();
 
-        let left = self.rotors[0].wiring;
-        let center = self.rotors[1].wiring;
-        let right = self.rotors[2].wiring;
+        let left = self.rotors[0];
+        let center = self.rotors[1];
+        let right = self.rotors[2];
         let plug_board = self.plug_board;
         let reflector = self.reflector.wiring;
 
@@ -143,17 +156,17 @@ impl<'a> State<'a> {
 
             // (3) First Rotor
             shift = (input2 + right_offset) % MAX_WIRES;
-            let input3 = right[shift];
+            let input3 = right.wiring[shift];
             trace!("R-Rotor = {} -> {} -> {}", input2, shift, input3);
 
             // (4) Second Rotor
             shift = (input3 + center_offset) % MAX_WIRES;
-            let input4 = center[shift];
+            let input4 = center.wiring[shift];
             trace!("C-Rotor = {} -> {} -> {}", input3, shift, input4);
 
             // (5) Third Rotor
             shift = (input4 + left_offset) % MAX_WIRES;
-            let input5 = left[shift];
+            let input5 = left.wiring[shift];
             trace!("L-Rotor = {} -> {} -> {}", input4, shift, input5);
 
             // (6) Reflector
@@ -162,17 +175,17 @@ impl<'a> State<'a> {
 
             // (7) Third Rotor Inverse
             shift = (input6 + left_offset) % MAX_WIRES;
-            let input7 = left[shift];
+            let input7 = left.inv_wiring[shift];
             trace!("L-Rotor = {} -> {} -> {}", input6, shift, input7);
 
             // (8) Second Rotor Inverse
             shift = (input7 + center_offset) % MAX_WIRES;
-            let input8 = center[shift];
+            let input8 = center.inv_wiring[shift];
             trace!("C-Rotor = {} -> {} -> {}", input7, shift, input8);
 
             // (9) First Rotor Inverse
             shift = (input8 + right_offset) % MAX_WIRES;
-            let input9 = right[shift];
+            let input9 = right.inv_wiring[shift];
             trace!("R-Rotor = {} -> {} -> {}", input8, shift, input9);
 
             // (10) Plug Board
