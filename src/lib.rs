@@ -2,12 +2,24 @@
 extern crate log;
 
 const MAX_WIRES: usize = 26;
+pub const NO_PLUGS: [(char, char); 10] = [
+    ('A', 'A'),
+    ('A', 'A'),
+    ('A', 'A'),
+    ('A', 'A'),
+    ('A', 'A'),
+    ('A', 'A'),
+    ('A', 'A'),
+    ('A', 'A'),
+    ('A', 'A'),
+    ('A', 'A'),
+];
 
 #[derive(Debug)]
 pub struct Rotor {
     name: String,
-    wiring: [usize; 26],
-    inv_wiring: [usize; 26],
+    wiring: [usize; MAX_WIRES],
+    inv_wiring: [usize; MAX_WIRES],
     turnover_post: usize,
 }
 
@@ -23,39 +35,10 @@ impl Rotor {
     }
 }
 
-fn gen_wiring(encoding: &str) -> [usize; 26] {
-    let mut wiring: [usize; 26] = [0; 26];
-    let bytes = encoding.as_bytes();
-
-    for i in 0..26 {
-        wiring[i] = wire(bytes[i] as char)
-    }
-
-    return wiring;
-}
-
-fn inv(wiring: [usize; 26]) -> [usize; 26] {
-    let mut iwiring: [usize; 26] = [9; 26];
-
-    for i in 0..26 {
-        iwiring[wiring[i]] = i;
-    }
-
-    return iwiring;
-}
-
-fn wire(c: char) -> usize {
-    return ((c as u8) - b'A') as usize;
-}
-
-fn unwire(i: usize) -> char {
-    return (i as u8 + b'A') as char;
-}
-
 #[derive(Debug)]
 pub struct Reflector {
     name: String,
-    wiring: [usize; 26],
+    wiring: [usize; MAX_WIRES],
 }
 
 impl Reflector {
@@ -72,22 +55,9 @@ pub struct State<'a> {
     rotors: [&'a Rotor; 3],
     setting: [usize; 3],
     offsets: [usize; 3],
-    plug_board: [usize; 26],
+    plug_board: [usize; MAX_WIRES],
     reflector: &'a Reflector,
 }
-
-pub const NO_PLUGS: [(char, char); 10] = [
-    ('A', 'A'),
-    ('A', 'A'),
-    ('A', 'A'),
-    ('A', 'A'),
-    ('A', 'A'),
-    ('A', 'A'),
-    ('A', 'A'),
-    ('A', 'A'),
-    ('A', 'A'),
-    ('A', 'A'),
-];
 
 impl<'a> State<'a> {
     pub fn new(
@@ -200,9 +170,9 @@ impl<'a> State<'a> {
                 "ENCRYPTED {} -> {} :: {} {} {} :: {} {} {}",
                 c,
                 cout,
-                unwire(left_offset % 26),
-                unwire(center_offset % 26),
-                unwire(right_offset % 26),
+                unwire(left_offset % MAX_WIRES),
+                unwire(center_offset % MAX_WIRES),
+                unwire(right_offset % MAX_WIRES),
                 left_offset,
                 center_offset,
                 right_offset
@@ -213,11 +183,12 @@ impl<'a> State<'a> {
     }
 }
 
-fn gen_board(plugs: [(char, char); 10]) -> [usize; 26] {
-    let mut board = [
-        0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23, 24,
-        25,
-    ];
+fn gen_board(plugs: [(char, char); 10]) -> [usize; MAX_WIRES] {
+    let mut board: [usize; MAX_WIRES] = [0; MAX_WIRES];
+
+    for i in 0..MAX_WIRES {
+        board[i] = i;
+    }
 
     for (p1, p2) in plugs {
         let w1 = wire(p1);
@@ -228,4 +199,33 @@ fn gen_board(plugs: [(char, char); 10]) -> [usize; 26] {
     }
 
     return board;
+}
+
+fn gen_wiring(encoding: &str) -> [usize; MAX_WIRES] {
+    let mut wiring: [usize; MAX_WIRES] = [0; MAX_WIRES];
+    let bytes = encoding.as_bytes();
+
+    for i in 0..MAX_WIRES {
+        wiring[i] = wire(bytes[i] as char)
+    }
+
+    return wiring;
+}
+
+fn inv(wiring: [usize; MAX_WIRES]) -> [usize; MAX_WIRES] {
+    let mut iwiring: [usize; MAX_WIRES] = [0; MAX_WIRES];
+
+    for i in 0..MAX_WIRES {
+        iwiring[wiring[i]] = i;
+    }
+
+    return iwiring;
+}
+
+fn wire(c: char) -> usize {
+    return ((c as u8) - b'A') as usize;
+}
+
+fn unwire(i: usize) -> char {
+    return (i as u8 + b'A') as char;
 }
