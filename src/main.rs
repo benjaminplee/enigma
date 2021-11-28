@@ -1,11 +1,23 @@
 // use enigma::*;
 extern crate pretty_env_logger;
+
 #[macro_use]
 extern crate log;
+
+#[macro_use]
+extern crate clap;
+use clap::App;
 
 use std::fs;
 
 fn main() {
+    let yaml = load_yaml!("cli.yml");
+    let matches = App::from_yaml(yaml).get_matches();
+
+    let input_file = matches.value_of("INPUT").unwrap();
+
+    println!("Using input file: {}", input_file);
+
     pretty_env_logger::init();
 
     let rotors = [
@@ -37,7 +49,7 @@ fn main() {
     // let text = String::from("HELLO WORLD! THE QUICK BROWN FOX JUMPED OVER THE LAZY DOG.");
 
     let text =
-        fs::read_to_string("input.txt").expect("Something went wrong reading the input file");
+        fs::read_to_string(input_file).expect("Something went wrong reading the input file");
 
     debug!("Starting State: {:?}", machine);
 

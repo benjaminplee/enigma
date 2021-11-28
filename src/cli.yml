@@ -1,0 +1,12 @@
+name: enigma
+version: "1.0"
+about: Enigma cipher implementation and playground
+args:
+    - INPUT:
+        help: Sets the input file containing text to encode
+        required: true
+        index: 1
+    - verbose:
+        short: v
+        multiple: true
+        help: Sets the level of verbosity in output showing progress
