@@ -1,3 +1,6 @@
+extern crate env_logger;
+use env_logger::Env;
+
 extern crate pretty_env_logger;
 
 #[macro_use]
@@ -15,9 +18,16 @@ fn main() {
 
     let input_file = matches.value_of("INPUT").unwrap();
 
-    info!("Using input file: {}", input_file);
+    let level = match matches.occurrences_of("verbose") {
+        0 => "OFF",
+        1 => "INFO",
+        2 => "DEBUG",
+        3 | _ => "TRACE",
+    };
 
-    pretty_env_logger::init();
+    env_logger::Builder::from_env(Env::default().default_filter_or(level)).init();
+
+    info!("Using input file: {}", input_file);
 
     let rotors = [
         enigma::Rotor::new("I", "EKMFLGDQVZNTOWYHXUSPAIBRCJ", 'R'),
@@ -47,8 +57,6 @@ fn main() {
     debug!("Starting State: {:?}", machine);
 
     let output = machine.encode(&text);
-
-    info!("Encoded: {} -> {}", text, output);
 
     println!("{}", output);
 }
