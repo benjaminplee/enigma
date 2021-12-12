@@ -96,6 +96,33 @@ impl<'a> State<'a> {
         }
     }
 
+    pub fn new_random() -> State<'a> {
+        let (left_rotor, center_rotor, right_rotor) = State::random_rotors();
+        let reflector = State::random_reflector();
+        let initial = ['A', 'A', 'A'];
+        let plugs = NO_PLUGS;
+
+        let initial_settings = [wire(initial[0]), wire(initial[1]), wire(initial[2])];
+        State {
+            left_rotor: &left_rotor,
+            center_rotor: &center_rotor,
+            right_rotor: &right_rotor,
+            setting: initial_settings,
+            offsets: [wire(initial[0]), wire(initial[1]), wire(initial[2])],
+            plug_board: gen_board(plugs),
+            reflector: &reflector,
+        }
+    }
+
+    fn random_rotors() -> (Rotor, Rotor, Rotor) {
+        let rotors = State::all_rotors();
+        return (rotors[0], rotors[1], rotors[2]); // TODO real random selection
+    }
+
+    fn random_reflector() -> Reflector {
+        return State::all_reflectors()[0]; // TODO real random selection
+    }
+
     pub fn all_rotors() -> [Rotor; 5] {
         [
             Rotor::new("I", "EKMFLGDQVZNTOWYHXUSPAIBRCJ", 'R'),
