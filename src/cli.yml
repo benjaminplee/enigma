@@ -1,12 +1,29 @@
 name: enigma
 version: "1.0"
 about: Enigma cipher implementation and playground
+subcommand_required_else_help: true
 args:
-    - INPUT:
-        help: Sets the input file containing text to encode
-        required: true
-        index: 1
     - verbose:
         short: v
         multiple: true
         help: Sets the level of verbosity in output showing progress
+subcommands:
+    - io:
+        about: single pass encrypt from stdin to stdout
+    - dir:
+        about: single pass encrypt all files by director
+        args:
+            - source:
+                required: true
+                index: 1
+                help: source directory
+            - destionation:
+                required: true
+                index: 2
+                help: destination directory
+            - suffix:
+                short: s
+                long: suffix
+                value_name: suffix
+                takes_value: true
+                help: file suffix to add to encrypted output

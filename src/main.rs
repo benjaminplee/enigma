@@ -8,15 +8,16 @@ extern crate log;
 
 #[macro_use]
 extern crate clap;
-use clap::App;
+use clap::{App, AppSettings};
 
 use std::fs;
 
 fn main() {
     let yaml = load_yaml!("cli.yml");
-    let matches = App::from_yaml(yaml).get_matches();
-
-    let input_file = matches.value_of("INPUT").unwrap();
+    let matches = App::from_yaml(yaml)
+        .setting(AppSettings::SubcommandRequiredElseHelp)
+        .setting(AppSettings::AllowExternalSubcommands)
+        .get_matches();
 
     let level = match matches.occurrences_of("verbose") {
         0 => "OFF",
@@ -27,36 +28,37 @@ fn main() {
 
     env_logger::Builder::from_env(Env::default().default_filter_or(level)).init();
 
-    info!("Using input file: {}", input_file);
-
-    let rotors = [
-        enigma::Rotor::new("I", "EKMFLGDQVZNTOWYHXUSPAIBRCJ", 'R'),
-        enigma::Rotor::new("II", "AJDKSIRUXBLHWTMCQGZNPYFVOE", 'F'),
-        enigma::Rotor::new("III", "BDFHJLCPRTXVZNYEIWGAKMUSQO", 'W'),
-        enigma::Rotor::new("IV", "ESOVPZJAYQUIRHXLNFTGKDCMWB", 'K'),
-        enigma::Rotor::new("V", "VZBRGITYUPSDNHLXAWMJQOFECK", 'A'),
-    ];
-
-    let reflectors = [
-        enigma::Reflector::new("A", "EJMZALYXVBWFCRQUONTSPIKHGD"),
-        enigma::Reflector::new("B", "YRUHQSLDPXNGOKMIEBFZCWVJAT"),
-        enigma::Reflector::new("C", "FVPJIAOYEDRZXWGCTKUQSBNMHL"),
-    ];
-
-    let mut machine = enigma::State::new(
-        &rotors[0],
-        &rotors[1],
-        &rotors[2],
-        ['A', 'A', 'A'],
-        enigma::NO_PLUGS,
-        &reflectors[0],
-    );
-
-    let text = fs::read_to_string(input_file).expect("Something went wrong reading the input file");
-
-    debug!("Starting State: {:?}", machine);
-
-    let output = machine.encode(&text);
-
-    println!("{}", output);
+    // let input_file = matches.value_of("INPUT").unwrap();
+    // info!("Using input file: {}", input_file);
+    //
+    // let rotors = [
+    //     enigma::Rotor::new("I", "EKMFLGDQVZNTOWYHXUSPAIBRCJ", 'R'),
+    //     enigma::Rotor::new("II", "AJDKSIRUXBLHWTMCQGZNPYFVOE", 'F'),
+    //     enigma::Rotor::new("III", "BDFHJLCPRTXVZNYEIWGAKMUSQO", 'W'),
+    //     enigma::Rotor::new("IV", "ESOVPZJAYQUIRHXLNFTGKDCMWB", 'K'),
+    //     enigma::Rotor::new("V", "VZBRGITYUPSDNHLXAWMJQOFECK", 'A'),
+    // ];
+    //
+    // let reflectors = [
+    //     enigma::Reflector::new("A", "EJMZALYXVBWFCRQUONTSPIKHGD"),
+    //     enigma::Reflector::new("B", "YRUHQSLDPXNGOKMIEBFZCWVJAT"),
+    //     enigma::Reflector::new("C", "FVPJIAOYEDRZXWGCTKUQSBNMHL"),
+    // ];
+    //
+    // let mut machine = enigma::State::new(
+    //     &rotors[0],
+    //     &rotors[1],
+    //     &rotors[2],
+    //     ['A', 'A', 'A'],
+    //     enigma::NO_PLUGS,
+    //     &reflectors[0],
+    // );
+    //
+    // let text = fs::read_to_string(input_file).expect("Something went wrong reading the input file");
+    //
+    // debug!("Starting State: {:?}", machine);
+    //
+    // let output = machine.encode(&text);
+    //
+    // println!("{}", output);
 }
