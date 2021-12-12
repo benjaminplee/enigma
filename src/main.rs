@@ -28,37 +28,47 @@ fn main() {
 
     env_logger::Builder::from_env(Env::default().default_filter_or(level)).init();
 
-    // let input_file = matches.value_of("INPUT").unwrap();
-    // info!("Using input file: {}", input_file);
-    //
-    // let rotors = [
-    //     enigma::Rotor::new("I", "EKMFLGDQVZNTOWYHXUSPAIBRCJ", 'R'),
-    //     enigma::Rotor::new("II", "AJDKSIRUXBLHWTMCQGZNPYFVOE", 'F'),
-    //     enigma::Rotor::new("III", "BDFHJLCPRTXVZNYEIWGAKMUSQO", 'W'),
-    //     enigma::Rotor::new("IV", "ESOVPZJAYQUIRHXLNFTGKDCMWB", 'K'),
-    //     enigma::Rotor::new("V", "VZBRGITYUPSDNHLXAWMJQOFECK", 'A'),
-    // ];
-    //
-    // let reflectors = [
-    //     enigma::Reflector::new("A", "EJMZALYXVBWFCRQUONTSPIKHGD"),
-    //     enigma::Reflector::new("B", "YRUHQSLDPXNGOKMIEBFZCWVJAT"),
-    //     enigma::Reflector::new("C", "FVPJIAOYEDRZXWGCTKUQSBNMHL"),
-    // ];
-    //
-    // let mut machine = enigma::State::new(
-    //     &rotors[0],
-    //     &rotors[1],
-    //     &rotors[2],
-    //     ['A', 'A', 'A'],
-    //     enigma::NO_PLUGS,
-    //     &reflectors[0],
-    // );
-    //
-    // let text = fs::read_to_string(input_file).expect("Something went wrong reading the input file");
-    //
-    // debug!("Starting State: {:?}", machine);
-    //
-    // let output = machine.encode(&text);
-    //
-    // println!("{}", output);
+    match matches.subcommand() {
+        ("io", Some(_)) => {
+            command_io();
+        }
+        ("dir", Some(sub_m)) => {
+            command_dir(
+                sub_m.value_of("source").unwrap(),
+                sub_m.value_of("destination").unwrap(),
+            );
+        }
+        _ => unreachable!("Unknown subcommand"),
+    }
+}
+
+fn command_io() {
+    info!("Running IO subcommand");
+}
+
+fn command_dir(source: &str, dest: &str) {
+    info!(
+        "Running DIR subcommand for source: {} and dest: {}",
+        source, dest
+    );
+
+    let rotors = enigma::State::all_rotors();
+    let reflectors = enigma::State::all_reflectors();
+
+    let mut machine = enigma::State::new(
+        &rotors[0],
+        &rotors[1],
+        &rotors[2],
+        ['A', 'A', 'A'],
+        enigma::NO_PLUGS,
+        &reflectors[0],
+    );
+
+    let text = fs::read_to_string(source).expect("Something went wrong reading the input file");
+
+    debug!("Starting State: {:?}", machine);
+
+    let output = machine.encode(&text);
+
+    println!("{}", output);
 }

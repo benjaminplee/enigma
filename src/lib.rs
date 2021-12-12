@@ -96,6 +96,24 @@ impl<'a> State<'a> {
         }
     }
 
+    pub fn all_rotors() -> [Rotor; 5] {
+        [
+            Rotor::new("I", "EKMFLGDQVZNTOWYHXUSPAIBRCJ", 'R'),
+            Rotor::new("II", "AJDKSIRUXBLHWTMCQGZNPYFVOE", 'F'),
+            Rotor::new("III", "BDFHJLCPRTXVZNYEIWGAKMUSQO", 'W'),
+            Rotor::new("IV", "ESOVPZJAYQUIRHXLNFTGKDCMWB", 'K'),
+            Rotor::new("V", "VZBRGITYUPSDNHLXAWMJQOFECK", 'A'),
+        ]
+    }
+
+    pub fn all_reflectors() -> [Reflector; 3] {
+        [
+            Reflector::new("A", "EJMZALYXVBWFCRQUONTSPIKHGD"),
+            Reflector::new("B", "YRUHQSLDPXNGOKMIEBFZCWVJAT"),
+            Reflector::new("C", "FVPJIAOYEDRZXWGCTKUQSBNMHL"),
+        ]
+    }
+
     fn increment(&mut self) {
         if self.offsets[1] == self.right_rotor.turnover_post {
             self.offsets[1] = (self.offsets[1] + 1) % MAX_WIRES;
