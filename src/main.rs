@@ -42,6 +42,43 @@ fn main() {
     }
 }
 
+// struct Foo {
+//     name: String,
+//     id: usize,
+// }
+//
+// struct Bar {
+//     foo: Foo,
+//     id: usize,
+// }
+//
+// impl Bar {
+//     pub fn new(id: usize) -> Bar {
+//         Bar {
+//             foo: rand_foos(),
+//             id,
+//         }
+//     }
+// }
+//
+// fn foos() -> [Foo; 2] {
+//     [
+//         Foo {
+//             name: String::from("hi"),
+//             id: 1,
+//         },
+//         Foo {
+//             name: String::from("bye"),
+//             id: 2,
+//         },
+//     ]
+// }
+//
+// fn rand_foos() -> Foo {
+//     let fs = foos();
+//     fs[0]
+// }
+
 fn command_io() {
     info!("Running IO subcommand");
 }

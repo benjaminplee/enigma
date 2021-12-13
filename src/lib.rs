@@ -66,7 +66,7 @@ impl Reflector {
 
 #[derive(Debug)]
 pub struct State<'a> {
-    left_rotor: &'a Rotor,
+    left_rotor: Rotor,
     center_rotor: &'a Rotor,
     right_rotor: &'a Rotor,
     setting: [usize; 3],
@@ -76,25 +76,25 @@ pub struct State<'a> {
 }
 
 impl<'a> State<'a> {
-    pub fn new(
-        left_rotor: &'a Rotor,
-        center_rotor: &'a Rotor,
-        right_rotor: &'a Rotor,
-        initial: [char; 3],
-        plugs: [(char, char); 10],
-        reflector: &'a Reflector,
-    ) -> State<'a> {
-        let initial_settings = [wire(initial[0]), wire(initial[1]), wire(initial[2])];
-        State {
-            left_rotor,
-            center_rotor,
-            right_rotor,
-            setting: initial_settings,
-            offsets: [wire(initial[0]), wire(initial[1]), wire(initial[2])],
-            plug_board: gen_board(plugs),
-            reflector,
-        }
-    }
+    // pub fn new(
+    //     left_rotor: &'a Rotor,
+    //     center_rotor: &'a Rotor,
+    //     right_rotor: &'a Rotor,
+    //     initial: [char; 3],
+    //     plugs: [(char, char); 10],
+    //     reflector: &'a Reflector,
+    // ) -> State<'a> {
+    //     let initial_settings = [wire(initial[0]), wire(initial[1]), wire(initial[2])];
+    //     State {
+    //         left_rotor,
+    //         center_rotor,
+    //         right_rotor,
+    //         setting: initial_settings,
+    //         offsets: [wire(initial[0]), wire(initial[1]), wire(initial[2])],
+    //         plug_board: gen_board(plugs),
+    //         reflector,
+    //     }
+    // }
 
     pub fn new_random() -> State<'a> {
         let (left_rotor, center_rotor, right_rotor) = State::random_rotors();
@@ -104,7 +104,7 @@ impl<'a> State<'a> {
 
         let initial_settings = [wire(initial[0]), wire(initial[1]), wire(initial[2])];
         State {
-            left_rotor: &left_rotor,
+            left_rotor: left_rotor,
             center_rotor: &center_rotor,
             right_rotor: &right_rotor,
             setting: initial_settings,
