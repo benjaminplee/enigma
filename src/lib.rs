@@ -65,17 +65,17 @@ impl Reflector {
 }
 
 #[derive(Debug)]
-pub struct State<'a> {
+pub struct State {
     left_rotor: Rotor,
-    center_rotor: &'a Rotor,
-    right_rotor: &'a Rotor,
+    center_rotor: Rotor,
+    right_rotor: Rotor,
     setting: [usize; 3],
     offsets: [usize; 3],
     plug_board: [usize; MAX_WIRES],
-    reflector: &'a Reflector,
+    reflector: Reflector,
 }
 
-impl<'a> State<'a> {
+impl State {
     // pub fn new(
     //     left_rotor: &'a Rotor,
     //     center_rotor: &'a Rotor,
@@ -96,49 +96,22 @@ impl<'a> State<'a> {
     //     }
     // }
 
-    pub fn new_random() -> State<'a> {
-        let (left_rotor, center_rotor, right_rotor) = State::random_rotors();
-        let reflector = State::random_reflector();
+    pub fn new() -> State {
+        let (left_rotor, center_rotor, right_rotor) = random_rotors();
+        let reflector = random_reflector();
         let initial = ['A', 'A', 'A'];
         let plugs = NO_PLUGS;
-
         let initial_settings = [wire(initial[0]), wire(initial[1]), wire(initial[2])];
+
         State {
-            left_rotor: left_rotor,
-            center_rotor: &center_rotor,
-            right_rotor: &right_rotor,
+            left_rotor,
+            center_rotor,
+            right_rotor,
             setting: initial_settings,
-            offsets: [wire(initial[0]), wire(initial[1]), wire(initial[2])],
+            offsets: initial_settings,
             plug_board: gen_board(plugs),
-            reflector: &reflector,
+            reflector,
         }
-    }
-
-    fn random_rotors() -> (Rotor, Rotor, Rotor) {
-        let rotors = State::all_rotors();
-        return (rotors[0], rotors[1], rotors[2]); // TODO real random selection
-    }
-
-    fn random_reflector() -> Reflector {
-        return State::all_reflectors()[0]; // TODO real random selection
-    }
-
-    pub fn all_rotors() -> [Rotor; 5] {
-        [
-            Rotor::new("I", "EKMFLGDQVZNTOWYHXUSPAIBRCJ", 'R'),
-            Rotor::new("II", "AJDKSIRUXBLHWTMCQGZNPYFVOE", 'F'),
-            Rotor::new("III", "BDFHJLCPRTXVZNYEIWGAKMUSQO", 'W'),
-            Rotor::new("IV", "ESOVPZJAYQUIRHXLNFTGKDCMWB", 'K'),
-            Rotor::new("V", "VZBRGITYUPSDNHLXAWMJQOFECK", 'A'),
-        ]
-    }
-
-    pub fn all_reflectors() -> [Reflector; 3] {
-        [
-            Reflector::new("A", "EJMZALYXVBWFCRQUONTSPIKHGD"),
-            Reflector::new("B", "YRUHQSLDPXNGOKMIEBFZCWVJAT"),
-            Reflector::new("C", "FVPJIAOYEDRZXWGCTKUQSBNMHL"),
-        ]
     }
 
     fn increment(&mut self) {
@@ -158,7 +131,7 @@ impl<'a> State<'a> {
         return 'A';
     }
 
-    pub fn encode(&'a mut self, text: &String) -> String {
+    pub fn encode(mut self, text: &String) -> String {
         let mut output = String::new();
 
         let left = self.left_rotor;
@@ -238,6 +211,33 @@ impl<'a> State<'a> {
 
         return output;
     }
+}
+
+pub fn all_rotors() -> Vec<Rotor> {
+    vec![
+        Rotor::new("I", "EKMFLGDQVZNTOWYHXUSPAIBRCJ", 'R'),
+        Rotor::new("II", "AJDKSIRUXBLHWTMCQGZNPYFVOE", 'F'),
+        Rotor::new("III", "BDFHJLCPRTXVZNYEIWGAKMUSQO", 'W'),
+        Rotor::new("IV", "ESOVPZJAYQUIRHXLNFTGKDCMWB", 'K'),
+        Rotor::new("V", "VZBRGITYUPSDNHLXAWMJQOFECK", 'A'),
+    ]
+}
+
+fn random_rotors() -> (Rotor, Rotor, Rotor) {
+    let rotors = all_rotors();
+    return (rotors[0], rotors[1], rotors[2]); // TODO real random selection
+}
+
+fn random_reflector() -> Reflector {
+    return all_reflectors()[0]; // TODO real random selection
+}
+
+pub fn all_reflectors() -> [Reflector; 3] {
+    [
+        Reflector::new("A", "EJMZALYXVBWFCRQUONTSPIKHGD"),
+        Reflector::new("B", "YRUHQSLDPXNGOKMIEBFZCWVJAT"),
+        Reflector::new("C", "FVPJIAOYEDRZXWGCTKUQSBNMHL"),
+    ]
 }
 
 fn gen_board(plugs: [(char, char); 10]) -> [usize; MAX_WIRES] {

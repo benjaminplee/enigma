@@ -42,43 +42,6 @@ fn main() {
     }
 }
 
-// struct Foo {
-//     name: String,
-//     id: usize,
-// }
-//
-// struct Bar {
-//     foo: Foo,
-//     id: usize,
-// }
-//
-// impl Bar {
-//     pub fn new(id: usize) -> Bar {
-//         Bar {
-//             foo: rand_foos(),
-//             id,
-//         }
-//     }
-// }
-//
-// fn foos() -> [Foo; 2] {
-//     [
-//         Foo {
-//             name: String::from("hi"),
-//             id: 1,
-//         },
-//         Foo {
-//             name: String::from("bye"),
-//             id: 2,
-//         },
-//     ]
-// }
-//
-// fn rand_foos() -> Foo {
-//     let fs = foos();
-//     fs[0]
-// }
-
 fn command_io() {
     info!("Running IO subcommand");
 }
@@ -89,23 +52,64 @@ fn command_dir(source: &str, dest: &str) {
         source, dest
     );
 
-    let rotors = enigma::State::all_rotors();
-    let reflectors = enigma::State::all_reflectors();
+    // let rotors = enigma::State::all_rotors();
+    // let reflectors = enigma::State::all_reflectors();
+    //
+    // let mut machine = enigma::State::new(
+    //     &rotors[0],
+    //     &rotors[1],
+    //     &rotors[2],
+    //     ['A', 'A', 'A'],
+    //     enigma::NO_PLUGS,
+    //     &reflectors[0],
+    // );
+    //
+    // let text = fs::read_to_string(source).expect("Something went wrong reading the input file");
+    //
+    // debug!("Starting State: {:?}", machine);
+    //
+    // let output = machine.encode(&text);
+    //
+    // println!("{}", output);
+}
 
-    let mut machine = enigma::State::new(
-        &rotors[0],
-        &rotors[1],
-        &rotors[2],
-        ['A', 'A', 'A'],
-        enigma::NO_PLUGS,
-        &reflectors[0],
-    );
+////////////////////////////////////////
+/// TRYING TO UNDERSTAND BORROWING
+////////////////////////////////////////
 
-    let text = fs::read_to_string(source).expect("Something went wrong reading the input file");
+struct Foo {
+    name: String,
+    id: usize,
+}
 
-    debug!("Starting State: {:?}", machine);
+struct Bar {
+    foo: Foo,
+    id: usize,
+}
 
-    let output = machine.encode(&text);
+impl Bar {
+    pub fn new(id: usize) -> Bar {
+        Bar {
+            foo: rand_foos(),
+            id,
+        }
+    }
+}
 
-    println!("{}", output);
+fn foos() -> [Foo; 2] {
+    [
+        Foo {
+            name: String::from("hi"),
+            id: 1,
+        },
+        Foo {
+            name: String::from("bye"),
+            id: 2,
+        },
+    ]
+}
+
+fn rand_foos() -> Foo {
+    let fs = foos();
+    fs[0]
 }
