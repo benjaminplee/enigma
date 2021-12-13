@@ -213,8 +213,8 @@ impl State {
     }
 }
 
-pub fn all_rotors() -> Vec<Rotor> {
-    vec![
+fn all_rotors() -> [Rotor; 5] {
+    [
         Rotor::new("I", "EKMFLGDQVZNTOWYHXUSPAIBRCJ", 'R'),
         Rotor::new("II", "AJDKSIRUXBLHWTMCQGZNPYFVOE", 'F'),
         Rotor::new("III", "BDFHJLCPRTXVZNYEIWGAKMUSQO", 'W'),
@@ -228,16 +228,16 @@ fn random_rotors() -> (Rotor, Rotor, Rotor) {
     return (rotors[0], rotors[1], rotors[2]); // TODO real random selection
 }
 
-fn random_reflector() -> Reflector {
-    return all_reflectors()[0]; // TODO real random selection
-}
-
-pub fn all_reflectors() -> [Reflector; 3] {
+fn all_reflectors() -> [Reflector; 3] {
     [
         Reflector::new("A", "EJMZALYXVBWFCRQUONTSPIKHGD"),
         Reflector::new("B", "YRUHQSLDPXNGOKMIEBFZCWVJAT"),
         Reflector::new("C", "FVPJIAOYEDRZXWGCTKUQSBNMHL"),
     ]
+}
+
+fn random_reflector() -> Reflector {
+    return all_reflectors()[0]; // TODO real random selection
 }
 
 fn gen_board(plugs: [(char, char); 10]) -> [usize; MAX_WIRES] {
