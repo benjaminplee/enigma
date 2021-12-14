@@ -80,31 +80,31 @@ pub struct State {
 }
 
 impl State {
-    // pub fn new(
-    //     left_rotor: &'a Rotor,
-    //     center_rotor: &'a Rotor,
-    //     right_rotor: &'a Rotor,
-    //     initial: [char; 3],
-    //     plugs: [(char, char); 10],
-    //     reflector: &'a Reflector,
-    // ) -> State<'a> {
-    //     let initial_settings = [wire(initial[0]), wire(initial[1]), wire(initial[2])];
-    //     State {
-    //         left_rotor,
-    //         center_rotor,
-    //         right_rotor,
-    //         setting: initial_settings,
-    //         offsets: [wire(initial[0]), wire(initial[1]), wire(initial[2])],
-    //         plug_board: gen_board(plugs),
-    //         reflector,
-    //     }
-    // }
+    pub fn new(
+        left_rotor: Rotor,
+        center_rotor: Rotor,
+        right_rotor: Rotor,
+        initial: [char; 3],
+        plugs: [(char, char); 10],
+        reflector: Reflector,
+    ) -> State {
+        let initial_settings = [wire(initial[0]), wire(initial[1]), wire(initial[2])];
+        State {
+            left_rotor,
+            center_rotor,
+            right_rotor,
+            setting: initial_settings,
+            offsets: [wire(initial[0]), wire(initial[1]), wire(initial[2])],
+            plug_board: gen_board(plugs),
+            reflector,
+        }
+    }
 
-    pub fn new() -> State {
+    pub fn new_random() -> State {
         let (left_rotor, center_rotor, right_rotor) = random_rotors();
         let reflector = random_reflector();
-        let initial = ['A', 'A', 'A'];
-        let plugs = NO_PLUGS;
+        let initial = random_settings();
+        let plugs = random_plugs();
         let initial_settings = [wire(initial[0]), wire(initial[1]), wire(initial[2])];
 
         State {
@@ -242,6 +242,14 @@ fn all_reflectors() -> [Reflector; 3] {
 
 fn random_reflector() -> Reflector {
     return all_reflectors()[0]; // TODO real random selection
+}
+
+fn random_settings() -> [char; 3] {
+    ['A', 'A', 'A']
+}
+
+fn random_plugs() -> [(char, char); 10] {
+    NO_PLUGS
 }
 
 fn gen_board(plugs: [(char, char); 10]) -> [usize; MAX_WIRES] {
