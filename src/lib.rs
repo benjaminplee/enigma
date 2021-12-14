@@ -15,19 +15,21 @@ pub const NO_PLUGS: [(char, char); 10] = [
     ('A', 'A'),
 ];
 
-#[derive(Debug)]
+#[derive(Debug, Copy, Clone)]
 pub struct Rotor {
-    name: String,
+    name: &'static str,
+    encoding: &'static str,
     wiring: [usize; MAX_WIRES],
     inv_wiring: [usize; MAX_WIRES],
     turnover_post: usize,
 }
 
 impl Rotor {
-    pub fn new(name: &str, encoding: &str, turnover_pos: char) -> Rotor {
+    pub fn new(name: &'static str, encoding: &'static str, turnover_pos: char) -> Rotor {
         let wiring = gen_wiring(encoding);
         Rotor {
-            name: String::from(name),
+            name,
+            encoding,
             wiring,
             inv_wiring: inv(wiring),
             turnover_post: wire(turnover_pos),
@@ -49,16 +51,18 @@ impl Rotor {
     }
 }
 
-#[derive(Debug)]
+#[derive(Debug, Copy, Clone)]
 pub struct Reflector {
-    name: String,
+    name: &'static str,
+    encoding: &'static str,
     wiring: [usize; MAX_WIRES],
 }
 
 impl Reflector {
-    pub fn new(name: &str, encoding: &str) -> Reflector {
+    pub fn new(name: &'static str, encoding: &'static str) -> Reflector {
         Reflector {
-            name: String::from(name),
+            name,
+            encoding,
             wiring: gen_wiring(encoding),
         }
     }
