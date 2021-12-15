@@ -116,18 +116,12 @@ fn stats_io() {
     println!("STDIN STATS");
     println!("  Bytes read: {}", buffer.len());
 
-    let mut char_count = HashMap::new();
-    let mut num_chars = 0;
+    let (char_count, num_chars) = gen_stats(buffer);
 
-    for character in buffer.chars().filter(|c| c.is_ascii() && c.is_alphabetic()) {
-        let count = char_count
-            .entry(character.to_ascii_uppercase())
-            .or_insert(0);
-        *count += 1;
-        num_chars += 1;
-    }
-
-    println!("  Character Counts:");
+    println!(
+        "  Character Counts ({} unique ascii alpha present):",
+        num_chars
+    );
     for c in (b'A'..=b'Z').map(char::from) {
         let count = char_count.get(&c).ok_or(0).expect("Character error");
         let percent = 100.0 * *count as f64 / num_chars as f64;
@@ -141,6 +135,19 @@ fn stats_io() {
             percent as usize * 2
         );
     }
+}
 
-    println!("{:?}", char_count);
+fn gen_stats(buffer: String) -> (HashMap<char, u32>, u32) {
+    let mut char_count = HashMap::new();
+    let mut num_chars = 0;
+
+    for character in buffer.chars().filter(|c| c.is_ascii() && c.is_alphabetic()) {
+        let count = char_count
+            .entry(character.to_ascii_uppercase())
+            .or_insert(0);
+        *count += 1;
+        num_chars += 1;
+    }
+
+    (char_count, num_chars)
 }
