@@ -96,24 +96,4 @@ fn command_dir(source: &str, dest: &str) {
             fs::write(out_path, output).expect("Unable to write dest file");
         }
     }
-
-    // let rotors = enigma::State::all_rotors();
-    // let reflectors = enigma::State::all_reflectors();
-    //
-    // let mut machine = enigma::State::new(
-    //     &rotors[0],
-    //     &rotors[1],
-    //     &rotors[2],
-    //     ['A', 'A', 'A'],
-    //     enigma::NO_PLUGS,
-    //     &reflectors[0],
-    // );
-    //
-    // let text = fs::read_to_string(source).expect("Something went wrong reading the input file");
-    //
-    // debug!("Starting State: {:?}", machine);
-    //
-    // let output = machine.encode(&text);
-    //
-    // println!("{}", output);
 }
