@@ -117,12 +117,29 @@ fn stats_io() {
     println!("  Bytes read: {}", buffer.len());
 
     let mut char_count = HashMap::new();
+    let mut num_chars = 0;
 
     for character in buffer.chars().filter(|c| c.is_ascii() && c.is_alphabetic()) {
-            let count = char_count
-                .entry(character.to_ascii_uppercase())
-                .or_insert(0);
-            *count += 1;
+        let count = char_count
+            .entry(character.to_ascii_uppercase())
+            .or_insert(0);
+        *count += 1;
+        num_chars += 1;
+    }
+
+    println!("  Character Counts:");
+    for c in (b'A'..=b'Z').map(char::from) {
+        let count = char_count.get(&c).ok_or(0).expect("Character error");
+        let percent = 100.0 * *count as f64 / num_chars as f64;
+
+        println!(
+            "    {} {:12} {:5.1} {:-^4$}",
+            c,
+            count,
+            percent,
+            "",
+            percent as usize * 2
+        );
     }
 
     println!("{:?}", char_count);
