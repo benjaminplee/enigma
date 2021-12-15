@@ -11,6 +11,8 @@ extern crate clap;
 use clap::{App, AppSettings};
 
 use std::fs;
+use std::path::Path;
+
 use std::io;
 use std::io::prelude::*;
 
@@ -63,6 +65,37 @@ fn command_dir(source: &str, dest: &str) {
         "Running DIR subcommand for source: {} and dest: {}",
         source, dest
     );
+
+    let machine = enigma::State::new_random();
+
+    let source_path = Path::new(source);
+    let dest_path = Path::new(dest);
+
+    debug!("Ensuring dest directory and parents exist");
+    fs::create_dir_all(dest_path).expect("Unable to create parent directory");
+
+    for entry in fs::read_dir(source_path).expect("Unable to list source directory") {
+        let in_path = entry.expect("unable to get entry in source").path();
+
+        if in_path.is_dir() {
+            trace!("Skipping {} as directory", in_path.display());
+        } else {
+            let out_path = dest_path.join(in_path.file_name().expect("Unable to find file name"));
+
+            info!(
+                "Processing file: {} to {}",
+                in_path.display(),
+                out_path.display()
+            );
+
+            let text =
+                fs::read_to_string(in_path).expect("Something went wrong reading the source file");
+
+            let output = machine.encode(&text);
+
+            fs::write(out_path, output).expect("Unable to write dest file");
+        }
+    }
 
     // let rotors = enigma::State::all_rotors();
     // let reflectors = enigma::State::all_reflectors();
