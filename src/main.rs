@@ -16,6 +16,8 @@ use std::path::Path;
 use std::io;
 use std::io::prelude::*;
 
+use std::collections::HashMap;
+
 fn main() {
     let yaml = load_yaml!("cli.yml");
     let matches = App::from_yaml(yaml)
@@ -41,6 +43,9 @@ fn main() {
                 sub_m.value_of("source").unwrap(),
                 sub_m.value_of("destination").unwrap(),
             );
+        }
+        ("stats-io", Some(_)) => {
+            stats_io();
         }
         _ => unreachable!("Unknown subcommand"),
     }
@@ -96,4 +101,29 @@ fn command_dir(source: &str, dest: &str) {
             fs::write(out_path, output).expect("Unable to write dest file");
         }
     }
+}
+
+fn stats_io() {
+    info!("Running STATS-IO subcommand");
+
+    let mut stdin = io::stdin();
+    let mut buffer = String::new();
+
+    stdin
+        .read_to_string(&mut buffer)
+        .expect("Error reading from STDIN");
+
+    println!("STDIN STATS");
+    println!("  Bytes read: {}", buffer.len());
+
+    let mut char_count = HashMap::new();
+
+    for character in buffer.chars().filter(|c| c.is_ascii() && c.is_alphabetic()) {
+            let count = char_count
+                .entry(character.to_ascii_uppercase())
+                .or_insert(0);
+            *count += 1;
+    }
+
+    println!("{:?}", char_count);
 }

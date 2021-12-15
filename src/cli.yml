@@ -27,3 +27,5 @@ subcommands:
                 value_name: suffix
                 takes_value: true
                 help: file suffix to add to encrypted output
+    - stats-io:
+        about: caclulate word and character stats from stdin
