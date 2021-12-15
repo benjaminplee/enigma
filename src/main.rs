@@ -11,6 +11,8 @@ extern crate clap;
 use clap::{App, AppSettings};
 
 use std::fs;
+use std::io;
+use std::io::prelude::*;
 
 fn main() {
     let yaml = load_yaml!("cli.yml");
@@ -44,6 +46,16 @@ fn main() {
 
 fn command_io() {
     info!("Running IO subcommand");
+
+    let machine = enigma::State::new_random();
+
+    let stdin = io::stdin();
+    for line in stdin.lock().lines() {
+        let text = line.expect("Error reading from STDIN: {}");
+        trace!("Read from STDIN: {}", text);
+        let output = machine.encode(&text);
+        println!("{}", output);
+    }
 }
 
 fn command_dir(source: &str, dest: &str) {

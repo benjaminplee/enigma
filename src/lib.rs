@@ -68,7 +68,7 @@ impl Reflector {
     }
 }
 
-#[derive(Debug)]
+#[derive(Debug, Copy, Clone)]
 pub struct State {
     left_rotor: Rotor,
     center_rotor: Rotor,
