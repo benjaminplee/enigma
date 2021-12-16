@@ -35,11 +35,11 @@ fn main() {
     env_logger::Builder::from_env(Env::default().default_filter_or(level)).init();
 
     match matches.subcommand() {
-        ("io", Some(_)) => {
-            command_io();
+        ("encode-io", Some(_)) => {
+            command_encode_io();
         }
-        ("dir", Some(sub_m)) => {
-            command_dir(
+        ("encode-dir", Some(sub_m)) => {
+            command_encode_dir(
                 sub_m.value_of("source").unwrap(),
                 sub_m.value_of("destination").unwrap(),
             );
@@ -47,12 +47,15 @@ fn main() {
         ("stats-io", Some(_)) => {
             stats_io();
         }
+        ("decode-io", Some(_)) => {
+            command_decode_io();
+        }
         _ => unreachable!("Unknown subcommand"),
     }
 }
 
-fn command_io() {
-    info!("Running IO subcommand");
+fn command_encode_io() {
+    info!("Running ENCODE-IO subcommand");
 
     let machine = enigma::State::new_random();
 
@@ -65,9 +68,34 @@ fn command_io() {
     }
 }
 
-fn command_dir(source: &str, dest: &str) {
+fn command_decode_io() {
+    info!("Running DECODE-IO subcommand");
+
+    let states = enigma::StateSet::new();
+
+    debug!(
+        "Running through {} states for first pass",
+        enigma::StateSet::MAX_STATES
+    );
+
+    for state in states {
+        trace!("Trying: {}", state.show());
+    }
+
+    // let machine = enigma::State::new_random();
+    //
+    // let stdin = io::stdin();
+    // for line in stdin.lock().lines() {
+    //     let text = line.expect("Error reading from STDIN: {}");
+    //     trace!("Read from STDIN: {}", text);
+    //     let output = machine.encode(&text);
+    //     println!("{}", output);
+    // }
+}
+
+fn command_encode_dir(source: &str, dest: &str) {
     info!(
-        "Running DIR subcommand for source: {} and dest: {}",
+        "Running ENCODE-DIR subcommand for source: {} and dest: {}",
         source, dest
     );
 

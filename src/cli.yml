@@ -8,9 +8,9 @@ args:
         multiple: true
         help: Sets the level of verbosity in output showing progress
 subcommands:
-    - io:
+    - encode-io:
         about: single pass encrypt from stdin to stdout
-    - dir:
+    - encode-dir:
         about: single pass encrypt all files by director
         args:
             - source:
@@ -29,3 +29,5 @@ subcommands:
                 help: file suffix to add to encrypted output
     - stats-io:
         about: caclulate word and character stats from stdin
+    - decode-io:
+        about: search for proper decode of STDIN and output best option to STDOUT

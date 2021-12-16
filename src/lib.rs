@@ -88,7 +88,7 @@ impl State {
     ) -> State {
         let (left_rotor, center_rotor, right_rotor) = rotors;
         let initial_settings = [wire(initial[0]), wire(initial[1]), wire(initial[2])];
-        
+
         State {
             left_rotor,
             center_rotor,
@@ -116,6 +116,20 @@ impl State {
             plug_board: gen_board(plugs),
             reflector,
         }
+    }
+
+    pub fn show(&self) -> String {
+        format!(
+            "State(Rotors={:>3}|{:>3}|{:>3} Settings={}|{}|{} Reflector={} Plugs={:?})",
+            self.left_rotor.name,
+            self.center_rotor.name,
+            self.right_rotor.name,
+            self.setting[0],
+            self.setting[1],
+            self.setting[2],
+            self.reflector.name,
+            self.plug_board,
+        )
     }
 
     fn increment(&mut self) {
@@ -304,25 +318,44 @@ pub struct StateSet {
     count: usize,
     rotors: [Rotor; 5],
     selected_rotors: (usize, usize, usize),
+    rotor_indexes: (usize, usize, usize),
     reflectors: [Reflector; 3],
     selected_reflector: usize,
 }
 
 impl StateSet {
-    pub const MAX_STATES: usize = 5 * 4 * 3;
+    pub const MAX_ROTORS: usize = 5;
+    pub const MAX_LEFT_ROTOR: usize = StateSet::MAX_ROTORS;
+    pub const MAX_CENTER_ROTOR: usize = StateSet::MAX_ROTORS - 1;
+    pub const MAX_RIGHT_ROTOR: usize = StateSet::MAX_ROTORS - 2;
+    pub const MAX_REFLECTORS: usize = 3;
+    pub const MAX_STATES: usize = StateSet::MAX_REFLECTORS;
+    // StateSet::MAX_LEFT_ROTOR
+    // * StateSet::MAX_CENTER_ROTOR
+    // * StateSet::MAX_RIGHT_ROTOR
+    // * ;
 
     pub fn new() -> StateSet {
         StateSet {
             count: 0,
             rotors: all_rotors(),
             selected_rotors: (0, 1, 2),
+            rotor_indexes: (0, 0, 0),
             reflectors: all_reflectors(),
-            selected_reflector: 0,
+            selected_reflector: StateSet::MAX_REFLECTORS - 1,
         }
     }
 
     fn shift(&mut self) {
         self.count += 1;
+        let mut reflector = self.selected_reflector;
+
+        reflector += 1;
+        if reflector == StateSet::MAX_REFLECTORS {
+            let (mut left, mut center, mut right) = self.selected_rotors;
+        }
+
+        self.selected_reflector = reflector % StateSet::MAX_REFLECTORS;
     }
 
     fn pick_rotors(&self) -> (Rotor, Rotor, Rotor) {
