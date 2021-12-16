@@ -329,30 +329,31 @@ impl StateSet {
     pub const MAX_CENTER_ROTOR: usize = StateSet::MAX_ROTORS - 1;
     pub const MAX_RIGHT_ROTOR: usize = StateSet::MAX_ROTORS - 2;
     pub const MAX_REFLECTORS: usize = 3;
-    pub const MAX_STATES: usize = StateSet::MAX_REFLECTORS;
-    // StateSet::MAX_LEFT_ROTOR
-    // * StateSet::MAX_CENTER_ROTOR
-    // * StateSet::MAX_RIGHT_ROTOR
-    // * ;
+    pub const MAX_STATES: usize = StateSet::MAX_REFLECTORS * StateSet::MAX_RIGHT_ROTOR;
 
     pub fn new() -> StateSet {
         StateSet {
             count: 0,
             rotors: all_rotors(),
-            selected_rotors: (0, 1, 2),
+            selected_rotors: (2, 1, 0),
             rotor_indexes: (0, 0, 0),
             reflectors: all_reflectors(),
-            selected_reflector: StateSet::MAX_REFLECTORS - 1,
+            selected_reflector: 0,
         }
     }
 
     fn shift(&mut self) {
         self.count += 1;
+
         let mut reflector = self.selected_reflector;
 
         reflector += 1;
         if reflector == StateSet::MAX_REFLECTORS {
             let (mut left, mut center, mut right) = self.selected_rotors;
+
+            right += 1;
+
+            self.selected_rotors = (left, center, right);
         }
 
         self.selected_reflector = reflector % StateSet::MAX_REFLECTORS;
@@ -372,7 +373,7 @@ impl StateSet {
     }
 
     fn done(&self) -> bool {
-        self.count > StateSet::MAX_STATES
+        self.count >= StateSet::MAX_STATES
     }
 }
 
@@ -380,17 +381,19 @@ impl Iterator for StateSet {
     type Item = State;
 
     fn next(&mut self) -> Option<Self::Item> {
-        self.shift();
-
         if self.done() {
             None
         } else {
-            Some(State::new(
+            let next_state = Some(State::new(
                 self.pick_rotors(),
                 self.pick_initial_settings(),
                 NO_PLUGS,
                 self.pick_reflector(),
-            ))
+            ));
+
+            self.shift();
+
+            return next_state;
         }
     }
 }
