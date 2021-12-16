@@ -1,6 +1,11 @@
 #[macro_use]
 extern crate log;
 
+extern crate rand;
+use rand::Rng;
+
+const MAX_ROTORS: usize = 5;
+const MAX_REFLECTORS: usize = 3;
 const MAX_WIRES: usize = 26;
 pub const NO_PLUGS: [(char, char); 10] = [
     ('A', 'A'),
@@ -18,7 +23,6 @@ pub const NO_PLUGS: [(char, char); 10] = [
 #[derive(Debug, Copy, Clone)]
 pub struct Rotor {
     name: &'static str,
-    encoding: &'static str,
     wiring: [usize; MAX_WIRES],
     inv_wiring: [usize; MAX_WIRES],
     turnover_post: usize,
@@ -29,7 +33,6 @@ impl Rotor {
         let wiring = gen_wiring(encoding);
         Rotor {
             name,
-            encoding,
             wiring,
             inv_wiring: inv(wiring),
             turnover_post: wire(turnover_pos),
@@ -54,7 +57,6 @@ impl Rotor {
 #[derive(Debug, Copy, Clone)]
 pub struct Reflector {
     name: &'static str,
-    encoding: &'static str,
     wiring: [usize; MAX_WIRES],
 }
 
@@ -62,7 +64,6 @@ impl Reflector {
     pub fn new(name: &'static str, encoding: &'static str) -> Reflector {
         Reflector {
             name,
-            encoding,
             wiring: gen_wiring(encoding),
         }
     }
@@ -255,7 +256,9 @@ fn all_reflectors() -> [Reflector; 3] {
 }
 
 fn random_reflector() -> Reflector {
-    return all_reflectors()[0]; // TODO real random selection
+    let mut rng = rand::thread_rng();
+    let index = rng.gen_range(0..MAX_REFLECTORS);
+    return all_reflectors()[index];
 }
 
 fn random_settings() -> [char; 3] {
@@ -316,7 +319,7 @@ fn unwire(i: usize) -> char {
 // Iterator for all states using rotors and reflector options
 pub struct StateSet {
     count: usize,
-    rotors: [Rotor; StateSet::MAX_ROTORS],
+    rotors: [Rotor; MAX_ROTORS],
     selected_rotors: (usize, usize, usize),
     rotor_indexes: (usize, usize, usize),
     rotor_options: (
@@ -324,17 +327,15 @@ pub struct StateSet {
         [usize; StateSet::MAX_CENTER_ROTOR],
         [usize; StateSet::MAX_RIGHT_ROTOR],
     ),
-    reflectors: [Reflector; StateSet::MAX_REFLECTORS],
+    reflectors: [Reflector; MAX_REFLECTORS],
     selected_reflector: usize,
 }
 
 impl StateSet {
-    pub const MAX_ROTORS: usize = 5;
-    pub const MAX_LEFT_ROTOR: usize = StateSet::MAX_ROTORS;
-    pub const MAX_CENTER_ROTOR: usize = StateSet::MAX_ROTORS - 1;
-    pub const MAX_RIGHT_ROTOR: usize = StateSet::MAX_ROTORS - 2;
-    pub const MAX_REFLECTORS: usize = 3;
-    pub const MAX_STATES: usize = StateSet::MAX_REFLECTORS
+    pub const MAX_LEFT_ROTOR: usize = MAX_ROTORS;
+    pub const MAX_CENTER_ROTOR: usize = MAX_ROTORS - 1;
+    pub const MAX_RIGHT_ROTOR: usize = MAX_ROTORS - 2;
+    pub const MAX_STATES: usize = MAX_REFLECTORS
         * StateSet::MAX_RIGHT_ROTOR
         * StateSet::MAX_CENTER_ROTOR
         * StateSet::MAX_LEFT_ROTOR;
@@ -357,10 +358,9 @@ impl StateSet {
         let mut reflector = self.selected_reflector;
 
         reflector += 1;
-        if reflector == StateSet::MAX_REFLECTORS {
-            let (mut left_rotor, mut center_rotor, mut right_rotor) = self.selected_rotors;
+        if reflector == MAX_REFLECTORS {
             let (mut left_index, mut center_index, mut right_index) = self.rotor_indexes;
-            let (mut left_opts, mut center_opts, mut right_opts) = self.rotor_options;
+            let (left_opts, mut center_opts, mut right_opts) = self.rotor_options;
 
             right_index += 1;
             if right_index == StateSet::MAX_RIGHT_ROTOR {
@@ -394,16 +394,16 @@ impl StateSet {
 
             right_index %= StateSet::MAX_RIGHT_ROTOR;
 
-            right_rotor = right_opts[right_index]; // Use next right rotor
-            center_rotor = center_opts[center_index]; // Use next center rotor
-            left_rotor = left_opts[left_index]; // Use next center rotor
+            let right_rotor = right_opts[right_index]; // Use next right rotor
+            let center_rotor = center_opts[center_index]; // Use next center rotor
+            let left_rotor = left_opts[left_index]; // Use next center rotor
 
             self.rotor_options = (left_opts, center_opts, right_opts);
             self.rotor_indexes = (left_index, center_index, right_index);
             self.selected_rotors = (left_rotor, center_rotor, right_rotor);
         }
 
-        self.selected_reflector = reflector % StateSet::MAX_REFLECTORS;
+        self.selected_reflector = reflector % MAX_REFLECTORS;
     }
 
     fn pick_rotors(&self) -> (Rotor, Rotor, Rotor) {
