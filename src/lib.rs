@@ -334,8 +334,10 @@ impl StateSet {
     pub const MAX_CENTER_ROTOR: usize = StateSet::MAX_ROTORS - 1;
     pub const MAX_RIGHT_ROTOR: usize = StateSet::MAX_ROTORS - 2;
     pub const MAX_REFLECTORS: usize = 3;
-    pub const MAX_STATES: usize =
-        StateSet::MAX_REFLECTORS * StateSet::MAX_RIGHT_ROTOR * StateSet::MAX_CENTER_ROTOR;
+    pub const MAX_STATES: usize = StateSet::MAX_REFLECTORS
+        * StateSet::MAX_RIGHT_ROTOR
+        * StateSet::MAX_CENTER_ROTOR
+        * StateSet::MAX_LEFT_ROTOR;
 
     pub fn new() -> StateSet {
         StateSet {
@@ -365,26 +367,36 @@ impl StateSet {
                 center_index += 1;
 
                 if center_index == StateSet::MAX_CENTER_ROTOR {
-                    // asdf
-                } else {
-                    center_rotor = center_opts[center_index]; // Use next center rotor
+                    left_index += 1;
+                    left_index %= StateSet::MAX_LEFT_ROTOR;
 
                     // create new right rotor options
                     let mut i = 0;
-                    for c in 0..StateSet::MAX_CENTER_ROTOR {
-                        if c != center_index {
-                            right_opts[i] = center_opts[c];
+                    for l in 0..StateSet::MAX_LEFT_ROTOR {
+                        if l != left_index {
+                            center_opts[i] = left_opts[l];
                             i += 1;
                         }
                     }
                 }
+
+                center_index %= StateSet::MAX_CENTER_ROTOR;
+
+                // create new right rotor options
+                let mut i = 0;
+                for c in 0..StateSet::MAX_CENTER_ROTOR {
+                    if c != center_index {
+                        right_opts[i] = center_opts[c];
+                        i += 1;
+                    }
+                }
             }
 
-            left_index %= StateSet::MAX_LEFT_ROTOR;
-            center_index %= StateSet::MAX_CENTER_ROTOR;
             right_index %= StateSet::MAX_RIGHT_ROTOR;
 
             right_rotor = right_opts[right_index]; // Use next right rotor
+            center_rotor = center_opts[center_index]; // Use next center rotor
+            left_rotor = left_opts[left_index]; // Use next center rotor
 
             self.rotor_options = (left_opts, center_opts, right_opts);
             self.rotor_indexes = (left_index, center_index, right_index);
