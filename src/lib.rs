@@ -81,14 +81,14 @@ pub struct State {
 
 impl State {
     pub fn new(
-        left_rotor: Rotor,
-        center_rotor: Rotor,
-        right_rotor: Rotor,
+        rotors: (Rotor, Rotor, Rotor),
         initial: [char; 3],
         plugs: [(char, char); 10],
         reflector: Reflector,
     ) -> State {
+        let (left_rotor, center_rotor, right_rotor) = rotors;
         let initial_settings = [wire(initial[0]), wire(initial[1]), wire(initial[2])];
+        
         State {
             left_rotor,
             center_rotor,
@@ -297,4 +297,67 @@ fn wire(c: char) -> usize {
 
 fn unwire(i: usize) -> char {
     return (i as u8 + b'A') as char;
+}
+
+// Iterator for all states using rotors and reflector options
+pub struct StateSet {
+    count: usize,
+    rotors: [Rotor; 5],
+    selected_rotors: (usize, usize, usize),
+    reflectors: [Reflector; 3],
+    selected_reflector: usize,
+}
+
+impl StateSet {
+    pub const MAX_STATES: usize = 5 * 4 * 3;
+
+    pub fn new() -> StateSet {
+        StateSet {
+            count: 0,
+            rotors: all_rotors(),
+            selected_rotors: (0, 1, 2),
+            reflectors: all_reflectors(),
+            selected_reflector: 0,
+        }
+    }
+
+    fn shift(&mut self) {
+        self.count += 1;
+    }
+
+    fn pick_rotors(&self) -> (Rotor, Rotor, Rotor) {
+        let (left, center, right) = self.selected_rotors;
+        (self.rotors[left], self.rotors[center], self.rotors[right])
+    }
+
+    fn pick_reflector(&self) -> Reflector {
+        self.reflectors[self.selected_reflector]
+    }
+
+    fn pick_initial_settings(&self) -> [char; 3] {
+        ['A', 'A', 'A']
+    }
+
+    fn done(&self) -> bool {
+        self.count > StateSet::MAX_STATES
+    }
+}
+
+impl Iterator for StateSet {
+    type Item = State;
+
+    fn next(&mut self) -> Option<Self::Item> {
+        self.shift();
+
+        if self.done() {
+            None
+        } else {
+            Some(State::new(
+                self.pick_rotors(),
+                self.pick_initial_settings(),
+                NO_PLUGS,
+                self.pick_reflector(),
+            ))
+        }
+    }
 }
