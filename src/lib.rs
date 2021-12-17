@@ -131,9 +131,9 @@ pub mod machine {
                 self.left_rotor.name,
                 self.center_rotor.name,
                 self.right_rotor.name,
-                self.setting[0],
-                self.setting[1],
-                self.setting[2],
+                ALPHABET[self.setting[0]],
+                ALPHABET[self.setting[1]],
+                ALPHABET[self.setting[2]],
                 self.reflector.name,
                 self.plug_board,
             )
@@ -423,7 +423,11 @@ pub mod machine {
                 self.selected_reflector = reflector % MAX_REFLECTORS;
             }
 
-            self.selected_settings = (left_set % MAX_WIRES, center_set % MAX_WIRES, right_set % MAX_WIRES);
+            self.selected_settings = (
+                left_set % MAX_WIRES,
+                center_set % MAX_WIRES,
+                right_set % MAX_WIRES,
+            );
         }
 
         fn pick_rotors(&self) -> (Rotor, Rotor, Rotor) {
