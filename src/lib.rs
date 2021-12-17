@@ -347,6 +347,8 @@ pub mod machine {
         pub const MAX_CENTER_ROTOR: usize = MAX_ROTORS - 1;
         pub const MAX_RIGHT_ROTOR: usize = MAX_ROTORS - 2;
         pub const MAX_STATES: usize = MAX_WIRES
+            * MAX_WIRES
+            * MAX_WIRES
             * MAX_REFLECTORS
             * StateSet::MAX_RIGHT_ROTOR
             * StateSet::MAX_CENTER_ROTOR
@@ -372,55 +374,62 @@ pub mod machine {
 
             right_set += 1;
             if right_set == MAX_WIRES {
-                let mut reflector = self.selected_reflector;
+                center_set += 1;
+                if center_set == MAX_WIRES {
+                    left_set += 1;
+                    if left_set == MAX_WIRES {
+                        let mut reflector = self.selected_reflector;
 
-                reflector += 1;
-                if reflector == MAX_REFLECTORS {
-                    let (mut left_index, mut center_index, mut right_index) = self.rotor_indexes;
-                    let (left_opts, mut center_opts, mut right_opts) = self.rotor_options;
+                        reflector += 1;
+                        if reflector == MAX_REFLECTORS {
+                            let (mut left_index, mut center_index, mut right_index) =
+                                self.rotor_indexes;
+                            let (left_opts, mut center_opts, mut right_opts) = self.rotor_options;
 
-                    right_index += 1;
-                    if right_index == StateSet::MAX_RIGHT_ROTOR {
-                        center_index += 1;
+                            right_index += 1;
+                            if right_index == StateSet::MAX_RIGHT_ROTOR {
+                                center_index += 1;
 
-                        if center_index == StateSet::MAX_CENTER_ROTOR {
-                            left_index += 1;
-                            left_index %= StateSet::MAX_LEFT_ROTOR;
+                                if center_index == StateSet::MAX_CENTER_ROTOR {
+                                    left_index += 1;
+                                    left_index %= StateSet::MAX_LEFT_ROTOR;
 
-                            // create new right rotor options
-                            let mut i = 0;
-                            for l in 0..StateSet::MAX_LEFT_ROTOR {
-                                if l != left_index {
-                                    center_opts[i] = left_opts[l];
-                                    i += 1;
+                                    // create new right rotor options
+                                    let mut i = 0;
+                                    for l in 0..StateSet::MAX_LEFT_ROTOR {
+                                        if l != left_index {
+                                            center_opts[i] = left_opts[l];
+                                            i += 1;
+                                        }
+                                    }
+                                }
+
+                                center_index %= StateSet::MAX_CENTER_ROTOR;
+
+                                // create new right rotor options
+                                let mut i = 0;
+                                for c in 0..StateSet::MAX_CENTER_ROTOR {
+                                    if c != center_index {
+                                        right_opts[i] = center_opts[c];
+                                        i += 1;
+                                    }
                                 }
                             }
+
+                            right_index %= StateSet::MAX_RIGHT_ROTOR;
+
+                            let right_rotor = right_opts[right_index]; // Use next right rotor
+                            let center_rotor = center_opts[center_index]; // Use next center rotor
+                            let left_rotor = left_opts[left_index]; // Use next center rotor
+
+                            self.rotor_options = (left_opts, center_opts, right_opts);
+                            self.rotor_indexes = (left_index, center_index, right_index);
+                            self.selected_rotors = (left_rotor, center_rotor, right_rotor);
                         }
 
-                        center_index %= StateSet::MAX_CENTER_ROTOR;
-
-                        // create new right rotor options
-                        let mut i = 0;
-                        for c in 0..StateSet::MAX_CENTER_ROTOR {
-                            if c != center_index {
-                                right_opts[i] = center_opts[c];
-                                i += 1;
-                            }
-                        }
+                        self.selected_reflector = reflector % MAX_REFLECTORS;
                     }
-
-                    right_index %= StateSet::MAX_RIGHT_ROTOR;
-
-                    let right_rotor = right_opts[right_index]; // Use next right rotor
-                    let center_rotor = center_opts[center_index]; // Use next center rotor
-                    let left_rotor = left_opts[left_index]; // Use next center rotor
-
-                    self.rotor_options = (left_opts, center_opts, right_opts);
-                    self.rotor_indexes = (left_index, center_index, right_index);
-                    self.selected_rotors = (left_rotor, center_rotor, right_rotor);
                 }
-
-                self.selected_reflector = reflector % MAX_REFLECTORS;
             }
 
             self.selected_settings = (
