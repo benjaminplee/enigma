@@ -9,6 +9,10 @@ pub mod machine {
     const MAX_ROTORS: usize = 5;
     const MAX_REFLECTORS: usize = 3;
     const MAX_WIRES: usize = 26;
+    const ALPHABET: [char; MAX_WIRES] = [
+        'A', 'B', 'C', 'D', 'E', 'F', 'G', 'H', 'I', 'J', 'K', 'L', 'M', 'N', 'O', 'P', 'Q', 'R',
+        'S', 'T', 'U', 'V', 'W', 'X', 'Y', 'Z',
+    ];
     pub const NO_PLUGS: [(char, char); 10] = [
         ('A', 'A'),
         ('A', 'A'),
@@ -335,13 +339,15 @@ pub mod machine {
         ),
         reflectors: [Reflector; MAX_REFLECTORS],
         selected_reflector: usize,
+        selected_settings: (usize, usize, usize),
     }
 
     impl StateSet {
         pub const MAX_LEFT_ROTOR: usize = MAX_ROTORS;
         pub const MAX_CENTER_ROTOR: usize = MAX_ROTORS - 1;
         pub const MAX_RIGHT_ROTOR: usize = MAX_ROTORS - 2;
-        pub const MAX_STATES: usize = MAX_REFLECTORS
+        pub const MAX_STATES: usize = MAX_WIRES
+            * MAX_REFLECTORS
             * StateSet::MAX_RIGHT_ROTOR
             * StateSet::MAX_CENTER_ROTOR
             * StateSet::MAX_LEFT_ROTOR;
@@ -355,65 +361,74 @@ pub mod machine {
                 rotor_options: ([0, 1, 2, 3, 4], [1, 2, 3, 4], [2, 3, 4]),
                 reflectors: all_reflectors(),
                 selected_reflector: 0,
+                selected_settings: (0, 0, 0),
             }
         }
 
         fn shift(&mut self) {
             self.count += 1;
 
-            let mut reflector = self.selected_reflector;
+            let (mut left_set, mut center_set, mut right_set) = self.selected_settings;
 
-            reflector += 1;
-            if reflector == MAX_REFLECTORS {
-                let (mut left_index, mut center_index, mut right_index) = self.rotor_indexes;
-                let (left_opts, mut center_opts, mut right_opts) = self.rotor_options;
+            right_set += 1;
+            if right_set == MAX_WIRES {
+                let mut reflector = self.selected_reflector;
 
-                right_index += 1;
-                if right_index == StateSet::MAX_RIGHT_ROTOR {
-                    center_index += 1;
+                reflector += 1;
+                if reflector == MAX_REFLECTORS {
+                    let (mut left_index, mut center_index, mut right_index) = self.rotor_indexes;
+                    let (left_opts, mut center_opts, mut right_opts) = self.rotor_options;
 
-                    if center_index == StateSet::MAX_CENTER_ROTOR {
-                        left_index += 1;
-                        left_index %= StateSet::MAX_LEFT_ROTOR;
+                    right_index += 1;
+                    if right_index == StateSet::MAX_RIGHT_ROTOR {
+                        center_index += 1;
+
+                        if center_index == StateSet::MAX_CENTER_ROTOR {
+                            left_index += 1;
+                            left_index %= StateSet::MAX_LEFT_ROTOR;
+
+                            // create new right rotor options
+                            let mut i = 0;
+                            for l in 0..StateSet::MAX_LEFT_ROTOR {
+                                if l != left_index {
+                                    center_opts[i] = left_opts[l];
+                                    i += 1;
+                                }
+                            }
+                        }
+
+                        center_index %= StateSet::MAX_CENTER_ROTOR;
 
                         // create new right rotor options
                         let mut i = 0;
-                        for l in 0..StateSet::MAX_LEFT_ROTOR {
-                            if l != left_index {
-                                center_opts[i] = left_opts[l];
+                        for c in 0..StateSet::MAX_CENTER_ROTOR {
+                            if c != center_index {
+                                right_opts[i] = center_opts[c];
                                 i += 1;
                             }
                         }
                     }
 
-                    center_index %= StateSet::MAX_CENTER_ROTOR;
+                    right_index %= StateSet::MAX_RIGHT_ROTOR;
 
-                    // create new right rotor options
-                    let mut i = 0;
-                    for c in 0..StateSet::MAX_CENTER_ROTOR {
-                        if c != center_index {
-                            right_opts[i] = center_opts[c];
-                            i += 1;
-                        }
-                    }
+                    let right_rotor = right_opts[right_index]; // Use next right rotor
+                    let center_rotor = center_opts[center_index]; // Use next center rotor
+                    let left_rotor = left_opts[left_index]; // Use next center rotor
+
+                    self.rotor_options = (left_opts, center_opts, right_opts);
+                    self.rotor_indexes = (left_index, center_index, right_index);
+                    self.selected_rotors = (left_rotor, center_rotor, right_rotor);
                 }
 
-                right_index %= StateSet::MAX_RIGHT_ROTOR;
-
-                let right_rotor = right_opts[right_index]; // Use next right rotor
-                let center_rotor = center_opts[center_index]; // Use next center rotor
-                let left_rotor = left_opts[left_index]; // Use next center rotor
-
-                self.rotor_options = (left_opts, center_opts, right_opts);
-                self.rotor_indexes = (left_index, center_index, right_index);
-                self.selected_rotors = (left_rotor, center_rotor, right_rotor);
+                self.selected_reflector = reflector % MAX_REFLECTORS;
             }
 
-            self.selected_reflector = reflector % MAX_REFLECTORS;
+            self.selected_settings = (left_set % MAX_WIRES, center_set % MAX_WIRES, right_set % MAX_WIRES);
         }
 
         fn pick_rotors(&self) -> (Rotor, Rotor, Rotor) {
             let (left, center, right) = self.selected_rotors;
+
             (self.rotors[left], self.rotors[center], self.rotors[right])
         }
 
@@ -422,7 +437,13 @@ pub mod machine {
         }
 
         fn pick_initial_settings(&self) -> [char; 3] {
-            ['A', 'A', 'A']
+            let (left_set, center_set, right_set) = self.selected_settings;
+
+            [
+                ALPHABET[left_set],
+                ALPHABET[center_set],
+                ALPHABET[right_set],
+            ]
         }
 
         fn done(&self) -> bool {
