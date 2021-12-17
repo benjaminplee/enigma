@@ -58,7 +58,6 @@ fn command_encode_io() {
     info!("Running ENCODE-IO subcommand");
 
     let machine = enigma::machine::State::new_random();
-
     info!("Encoding with {}", machine.show());
 
     let stdin = io::stdin();
@@ -74,6 +73,10 @@ fn command_decode_io() {
     info!("Running DECODE-IO subcommand");
 
     let states = enigma::machine::StateSet::new();
+    let mut best_state_by_freq = enigma::machine::State::new_random();
+    let mut best_freq = 2600.0;
+
+    let mut count = 0;
 
     debug!(
         "Running through {} states for first pass",
@@ -93,11 +96,31 @@ fn command_decode_io() {
 
         let output = state.encode(&buffer);
 
+        let (_, _, freq_delta) = gen_stats(&output);
+
+        if freq_delta < best_freq {
+            best_freq = freq_delta;
+            best_state_by_freq = state;
+
+            debug!("New best state found {} < {}", freq_delta, best_freq);
+        }
+
+        if count % 10 == 0 {
+            info!(
+                "{:>10} Best state by frequency ({}) so far: {}",
+                count,
+                best_freq,
+                best_state_by_freq.show()
+            );
+        }
+
         if output.len() < 60 {
             trace!("  OUTPUT: [{}]", output);
         } else {
             trace!("  OUTPUT SAMPLE: [{}]", (&output[..60]));
         }
+
+        count += 1;
     }
 }
 
@@ -108,6 +131,7 @@ fn command_encode_dir(source: &str, dest: &str) {
     );
 
     let machine = enigma::machine::State::new_random();
+    info!("Encoding with {}", machine.show());
 
     let source_path = Path::new(source);
     let dest_path = Path::new(dest);
@@ -152,18 +176,18 @@ fn stats_io() {
     println!("STDIN STATS");
     println!("  Bytes read: {}", buffer.len());
 
-    let (char_count, num_chars) = gen_stats(buffer);
+    let (char_count, num_chars, freq_delta) = gen_stats(&buffer);
 
     println!(
         "  Character Counts ({} unique ascii alpha present):",
         num_chars
     );
-    for c in (b'A'..=b'Z').map(char::from) {
+    for c in enigma::machine::ALPHABET {
         let count = char_count.get(&c).ok_or(0).expect("Character error");
         let percent = 100.0 * *count as f64 / num_chars as f64;
 
         println!(
-            "    {} {:12} {:5.1} {:-^4$}",
+            "    {} {:12} {:>7.3} {:-^4$}",
             c,
             count,
             percent,
@@ -171,9 +195,16 @@ fn stats_io() {
             percent as usize * 2
         );
     }
+
+    println!("  Character frequency delta: {}", freq_delta);
 }
 
-fn gen_stats(buffer: String) -> (HashMap<char, u32>, u32) {
+const NORMAL_PERCENT: [f64; 26] = [
+    7.856, 1.671, 2.306, 4.915, 12.038, 2.052, 2.249, 6.435, 6.399, 0.238, 1.014, 4.034, 2.423,
+    6.794, 7.887, 1.661, 0.060, 5.299, 5.946, 9.770, 3.041, 0.805, 2.656, 0.140, 2.160, 0.051,
+];
+
+fn gen_stats(buffer: &String) -> (HashMap<char, u32>, u32, f64) {
     let mut char_count = HashMap::new();
     let mut num_chars = 0;
 
@@ -185,5 +216,13 @@ fn gen_stats(buffer: String) -> (HashMap<char, u32>, u32) {
         num_chars += 1;
     }
 
-    (char_count, num_chars)
+    let mut freq_delta: f64 = 0.0;
+
+    for (k, v) in &char_count {
+        let expected = NORMAL_PERCENT[((*k as u8) - b'A') as usize];
+        let actual = 100.0 * *v as f64 / num_chars as f64;
+        freq_delta += (expected - actual).abs();
+    }
+
+    (char_count, num_chars, freq_delta)
 }

@@ -9,7 +9,7 @@ pub mod machine {
     const MAX_ROTORS: usize = 5;
     const MAX_REFLECTORS: usize = 3;
     const MAX_WIRES: usize = 26;
-    const ALPHABET: [char; MAX_WIRES] = [
+    pub const ALPHABET: [char; MAX_WIRES] = [
         'A', 'B', 'C', 'D', 'E', 'F', 'G', 'H', 'I', 'J', 'K', 'L', 'M', 'N', 'O', 'P', 'Q', 'R',
         'S', 'T', 'U', 'V', 'W', 'X', 'Y', 'Z',
     ];
@@ -268,11 +268,19 @@ pub mod machine {
     fn random_reflector() -> Reflector {
         let mut rng = rand::thread_rng();
         let index = rng.gen_range(0..MAX_REFLECTORS);
-        return all_reflectors()[index];
+
+
+        all_reflectors()[index]
     }
 
     fn random_settings() -> [char; 3] {
-        ['A', 'A', 'A']
+        let mut rng = rand::thread_rng();
+
+        [
+            ALPHABET[rng.gen_range(0..MAX_WIRES)],
+            ALPHABET[rng.gen_range(0..MAX_WIRES)],
+            ALPHABET[rng.gen_range(0..MAX_WIRES)],
+        ]
     }
 
     fn random_plugs() -> [(char, char); 10] {
@@ -328,7 +336,7 @@ pub mod machine {
 
     // Iterator for all states using rotors and reflector options
     pub struct StateSet {
-        count: usize,
+        pub count: usize,
         rotors: [Rotor; MAX_ROTORS],
         selected_rotors: (usize, usize, usize),
         rotor_indexes: (usize, usize, usize),
