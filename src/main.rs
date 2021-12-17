@@ -59,6 +59,8 @@ fn command_encode_io() {
 
     let machine = enigma::State::new_random();
 
+    info!("Encoding with {}", machine.show());
+
     let stdin = io::stdin();
     for line in stdin.lock().lines() {
         let text = line.expect("Error reading from STDIN: {}");

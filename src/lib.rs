@@ -2,6 +2,7 @@
 extern crate log;
 
 extern crate rand;
+use rand::prelude::*;
 use rand::Rng;
 
 const MAX_ROTORS: usize = 5;
@@ -243,8 +244,12 @@ fn all_rotors() -> [Rotor; 5] {
 }
 
 fn random_rotors() -> (Rotor, Rotor, Rotor) {
+    let mut rng = rand::thread_rng();
+    let mut nums: Vec<usize> = (0..MAX_ROTORS).collect();
+    nums.shuffle(&mut rng);
+
     let rotors = all_rotors();
-    return (rotors[0], rotors[1], rotors[2]); // TODO real random selection
+    return (rotors[nums[0]], rotors[nums[1]], rotors[nums[2]]);
 }
 
 fn all_reflectors() -> [Reflector; 3] {
