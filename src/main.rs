@@ -57,7 +57,7 @@ fn main() {
 fn command_encode_io() {
     info!("Running ENCODE-IO subcommand");
 
-    let machine = enigma::State::new_random();
+    let machine = enigma::machine::State::new_random();
 
     info!("Encoding with {}", machine.show());
 
@@ -73,26 +73,32 @@ fn command_encode_io() {
 fn command_decode_io() {
     info!("Running DECODE-IO subcommand");
 
-    let states = enigma::StateSet::new();
+    let states = enigma::machine::StateSet::new();
 
     debug!(
         "Running through {} states for first pass",
-        enigma::StateSet::MAX_STATES
+        enigma::machine::StateSet::MAX_STATES
     );
 
-    for state in states {
-        trace!("Trying: {}", state.show());
-    }
+    let mut stdin = io::stdin();
+    let mut buffer = String::new();
+    let bytes = stdin
+        .read_to_string(&mut buffer)
+        .expect("Problem reading from STDIN");
 
-    // let machine = enigma::State::new_random();
-    //
-    // let stdin = io::stdin();
-    // for line in stdin.lock().lines() {
-    //     let text = line.expect("Error reading from STDIN: {}");
-    //     trace!("Read from STDIN: {}", text);
-    //     let output = machine.encode(&text);
-    //     println!("{}", output);
-    // }
+    debug!("Read {} bytes from STDIN", bytes);
+
+    for state in states {
+        debug!("Trying: {}", state.show());
+
+        let output = state.encode(&buffer);
+
+        if output.len() < 60 {
+            trace!("  OUTPUT: [{}]", output);
+        } else {
+            trace!("  OUTPUT SAMPLE: [{}]", (&output[..60]));
+        }
+    }
 }
 
 fn command_encode_dir(source: &str, dest: &str) {
@@ -101,7 +107,7 @@ fn command_encode_dir(source: &str, dest: &str) {
         source, dest
     );
 
-    let machine = enigma::State::new_random();
+    let machine = enigma::machine::State::new_random();
 
     let source_path = Path::new(source);
     let dest_path = Path::new(dest);
