@@ -94,7 +94,11 @@ fn command_encode_io(
             rotor_by_name(center_rotor),
             rotor_by_name(right_rotor),
         ),
-        ['A', 'A', 'A'],
+        [
+            left_rotor_start.chars().next().unwrap(),
+            center_rotor_start.chars().next().unwrap(),
+            right_rotor_start.chars().next().unwrap(),
+        ],
         NO_PLUGS,
         reflector_by_name(reflector),
     ));
