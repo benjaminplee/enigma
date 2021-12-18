@@ -248,6 +248,16 @@ pub mod machine {
         ]
     }
 
+    pub fn rotor_by_name(name: &str) -> Rotor {
+        for r in all_rotors() {
+            if r.name == name {
+                return r;
+            }
+        }
+
+        panic!("Unable to find rotor by name: {}", name);
+    }
+
     fn random_rotors() -> (Rotor, Rotor, Rotor) {
         let mut rng = rand::thread_rng();
         let mut nums: Vec<usize> = (0..MAX_ROTORS).collect();
@@ -269,8 +279,17 @@ pub mod machine {
         let mut rng = rand::thread_rng();
         let index = rng.gen_range(0..MAX_REFLECTORS);
 
-
         all_reflectors()[index]
+    }
+
+    pub fn reflector_by_name(name: &str) -> Reflector {
+        for r in all_reflectors() {
+            if r.name == name {
+                return r;
+            }
+        }
+
+        panic!("Unable to find reflector by name: {}", name);
     }
 
     fn random_settings() -> [char; 3] {

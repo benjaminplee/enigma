@@ -18,6 +18,8 @@ use std::io::prelude::*;
 
 use std::collections::HashMap;
 
+use enigma::machine::*;
+
 fn main() {
     let yaml = load_yaml!("cli.yml");
     let matches = App::from_yaml(yaml)
@@ -35,11 +37,11 @@ fn main() {
     env_logger::Builder::from_env(Env::default().default_filter_or(level)).init();
 
     match matches.subcommand() {
-        ("encode-io", Some(_)) => {
-            command_encode_io();
+        ("rand-io", Some(_)) => {
+            command_rand_io();
         }
-        ("encode-dir", Some(sub_m)) => {
-            command_encode_dir(
+        ("rand-dir", Some(sub_m)) => {
+            command_rand_dir(
                 sub_m.value_of("source").unwrap(),
                 sub_m.value_of("destination").unwrap(),
             );
@@ -47,17 +49,64 @@ fn main() {
         ("stats-io", Some(_)) => {
             stats_io();
         }
-        ("decode-io", Some(_)) => {
-            command_decode_io();
+        ("search-io", Some(_)) => {
+            command_search_io();
+        }
+        ("encode-io", Some(sub_m)) => {
+            command_encode_io(
+                sub_m.value_of("left_rotor").unwrap(),
+                sub_m.value_of("center_rotor").unwrap(),
+                sub_m.value_of("right_rotor").unwrap(),
+                sub_m.value_of("left_rotor_start").unwrap(),
+                sub_m.value_of("center_rotor_start").unwrap(),
+                sub_m.value_of("right_rotor_start").unwrap(),
+                sub_m.value_of("reflector").unwrap(),
+            );
         }
         _ => unreachable!("Unknown subcommand"),
     }
 }
 
-fn command_encode_io() {
+fn command_encode_io(
+    left_rotor: &str,
+    center_rotor: &str,
+    right_rotor: &str,
+    left_rotor_start: &str,
+    center_rotor_start: &str,
+    right_rotor_start: &str,
+    reflector: &str,
+) {
     info!("Running ENCODE-IO subcommand");
+    debug!(
+        " Config = Rotors: {} {} {}  Start: {} {} {} Reflector: {}",
+        left_rotor,
+        center_rotor,
+        right_rotor,
+        left_rotor_start,
+        center_rotor_start,
+        right_rotor_start,
+        reflector
+    );
 
-    let machine = enigma::machine::State::new_random();
+    encode_io(State::new(
+        (
+            rotor_by_name(left_rotor),
+            rotor_by_name(center_rotor),
+            rotor_by_name(right_rotor),
+        ),
+        ['A', 'A', 'A'],
+        NO_PLUGS,
+        reflector_by_name(reflector),
+    ));
+}
+
+fn command_rand_io() {
+    info!("Running RAND-IO subcommand");
+
+    encode_io(State::new_random());
+}
+
+fn encode_io(machine: State) {
     info!("Encoding with {}", machine.show());
 
     let stdin = io::stdin();
@@ -69,18 +118,18 @@ fn command_encode_io() {
     }
 }
 
-fn command_decode_io() {
-    info!("Running DECODE-IO subcommand");
+fn command_search_io() {
+    info!("Running SEARCH-IO subcommand");
 
-    let states = enigma::machine::StateSet::new();
-    let mut best_state_by_freq = enigma::machine::State::new_random();
+    let states = StateSet::new();
+    let mut best_state_by_freq = State::new_random();
     let mut best_freq = 2600.0;
 
     let mut count = 0;
 
     debug!(
         "Running through {} states for first pass",
-        enigma::machine::StateSet::MAX_STATES
+        StateSet::MAX_STATES
     );
 
     let mut stdin = io::stdin();
@@ -124,13 +173,13 @@ fn command_decode_io() {
     }
 }
 
-fn command_encode_dir(source: &str, dest: &str) {
+fn command_rand_dir(source: &str, dest: &str) {
     info!(
-        "Running ENCODE-DIR subcommand for source: {} and dest: {}",
+        "Running RAND-DIR subcommand for source: {} and dest: {}",
         source, dest
     );
 
-    let machine = enigma::machine::State::new_random();
+    let machine = State::new_random();
     info!("Encoding with {}", machine.show());
 
     let source_path = Path::new(source);
@@ -182,7 +231,7 @@ fn stats_io() {
         "  Character Counts ({} unique ascii alpha present):",
         num_chars
     );
-    for c in enigma::machine::ALPHABET {
+    for c in ALPHABET {
         let count = char_count.get(&c).ok_or(0).expect("Character error");
         let percent = 100.0 * *count as f64 / num_chars as f64;
 

@@ -8,10 +8,10 @@ args:
         multiple: true
         help: Sets the level of verbosity in output showing progress
 subcommands:
-    - encode-io:
-        about: single pass encrypt from stdin to stdout
-    - encode-dir:
-        about: single pass encrypt all files by director
+    - rand-io:
+        about: single pass encrypt from STDIN to STDOUT (random config)
+    - rand-dir:
+        about: single pass encrypt all files by director (random config)
         args:
             - source:
                 required: true
@@ -28,6 +28,37 @@ subcommands:
                 takes_value: true
                 help: file suffix to add to encrypted output
     - stats-io:
-        about: caclulate word and character stats from stdin
-    - decode-io:
+        about: caclulate word and character stats from STDIN
+    - search-io:
         about: search for proper decode of STDIN and output best option to STDOUT
+    - encode-io:
+        about: encode using the specified config of text from STDIN to STDOUT
+        args:
+            - left_rotor:
+                required: true
+                index: 1
+                help: Left Rotor (I, II, III, IV, or V)
+            - center_rotor:
+                required: true
+                index: 2
+                help: Center Rotor (I, II, III, IV, or V)
+            - right_rotor:
+                required: true
+                index: 3
+                help: Right Rotor (I, II, III, IV, or V)
+            - left_rotor_start:
+                required: true
+                index: 4
+                help: Left Rotor Start (A-Z)
+            - center_rotor_start:
+                required: true
+                index: 5
+                help: Center Rotor Start (A-Z)
+            - right_rotor_start:
+                required: true
+                index: 6
+                help: Right Rotor Start (A-Z)
+            - reflector:
+                required: true
+                index: 7
+                help: Reflector (A, B, C)
