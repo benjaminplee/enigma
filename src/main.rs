@@ -175,6 +175,14 @@ fn command_search_io() {
 
         count += 1;
     }
+
+    println!(
+        "Best guess is below using state: {}",
+        best_state_by_freq.show()
+    );
+    println!("------------------------------------------------------");
+    println!("{}", best_state_by_freq.encode(&buffer));
+    println!("------------------------------------------------------");
 }
 
 fn command_rand_dir(source: &str, dest: &str) {
@@ -200,7 +208,7 @@ fn command_rand_dir(source: &str, dest: &str) {
         } else {
             let out_path = dest_path.join(in_path.file_name().expect("Unable to find file name"));
 
-            info!(
+            debug!(
                 "Processing file: {} to {}",
                 in_path.display(),
                 out_path.display()
