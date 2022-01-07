@@ -19,6 +19,7 @@ use std::io::prelude::*;
 use std::collections::HashMap;
 
 use enigma::machine::*;
+use enigma::factory::*;
 
 fn main() {
     let yaml = load_yaml!("cli.yml");

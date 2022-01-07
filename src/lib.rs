@@ -6,9 +6,9 @@ pub mod machine {
     use rand::prelude::*;
     use rand::Rng;
 
-    const MAX_ROTORS: usize = 5;
-    const MAX_REFLECTORS: usize = 3;
-    const MAX_WIRES: usize = 26;
+    pub const MAX_ROTORS: usize = 5;
+    pub const MAX_REFLECTORS: usize = 3;
+    pub const MAX_WIRES: usize = 26;
     pub const ALPHABET: [char; MAX_WIRES] = [
         'A', 'B', 'C', 'D', 'E', 'F', 'G', 'H', 'I', 'J', 'K', 'L', 'M', 'N', 'O', 'P', 'Q', 'R',
         'S', 'T', 'U', 'V', 'W', 'X', 'Y', 'Z',
@@ -238,7 +238,7 @@ pub mod machine {
         }
     }
 
-    fn all_rotors() -> [Rotor; 5] {
+    pub fn all_rotors() -> [Rotor; 5] {
         [
             Rotor::new("I", "EKMFLGDQVZNTOWYHXUSPAIBRCJ", 'R'),
             Rotor::new("II", "AJDKSIRUXBLHWTMCQGZNPYFVOE", 'F'),
@@ -267,7 +267,7 @@ pub mod machine {
         return (rotors[nums[0]], rotors[nums[1]], rotors[nums[2]]);
     }
 
-    fn all_reflectors() -> [Reflector; 3] {
+    pub fn all_reflectors() -> [Reflector; 3] {
         [
             Reflector::new("A", "EJMZALYXVBWFCRQUONTSPIKHGD"),
             Reflector::new("B", "YRUHQSLDPXNGOKMIEBFZCWVJAT"),
@@ -352,8 +352,11 @@ pub mod machine {
     fn unwire(i: usize) -> char {
         return (i as u8 + b'A') as char;
     }
+}
 
-    // Iterator for all states using rotors and reflector options
+pub mod factory {
+    use crate::machine::*;
+
     pub struct StateSet {
         pub count: usize,
         rotors: [Rotor; MAX_ROTORS],
